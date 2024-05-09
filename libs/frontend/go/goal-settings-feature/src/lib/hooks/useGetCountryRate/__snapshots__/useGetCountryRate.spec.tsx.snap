@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useGetCountryRate > should render successfully 1`] = `
+[
+  {
+    "annualWageGrowthLongTerm": 0.0024,
+    "annualWageGrowthShortTerm": 0.0024,
+    "averageSavingsRate": 0.081,
+    "countryCode": "US",
+    "dateCreated": "2019-02-17T21:55:33.000Z",
+    "id": 142,
+    "inflationRateLongTerm": 0.017,
+    "inflationRateShortTerm": 0.0132,
+    "lifeExpectancyFemale": 81,
+    "lifeExpectancyMale": 76,
+    "retirementAgeFemale": 66,
+    "retirementAgeMale": 66,
+    "savingsAccountInterestRate": 0.02,
+  },
+]
+`;

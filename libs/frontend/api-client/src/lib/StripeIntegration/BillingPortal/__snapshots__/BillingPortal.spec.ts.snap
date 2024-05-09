@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StripeIntegrationBillingPortalApi > createBillingPortalSession() > should return a valid response 1`] = `
+{
+  "configuration": "bpc_1MqdTLFabpOjRn7HkkDptkDE",
+  "created": 1681801980,
+  "customer": "cus_NjaxQisg68yfMP",
+  "flow": null,
+  "id": "bps_1My8imFabpOjRn7HotpzaMsH",
+  "livemode": false,
+  "locale": null,
+  "object": "billing_portal.session",
+  "on_behalf_of": null,
+  "return_url": "http://localhost:9000/",
+  "url": "https://billing.stripe.com/p/session/test_YWNjdF8xTW9NZ3RGYWJwT2pSbjdILF9OamJ3a3Z2NDdoTDdBSDNJWjdIRUJ0ZHpmZ3FIZ3Vr0100q4zg56E1",
+}
+`;

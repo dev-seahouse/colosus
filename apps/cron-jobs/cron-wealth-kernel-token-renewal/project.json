@@ -1,0 +1,69 @@
+{
+  "name": "cron-jobs-cron-wealth-kernel-token-renewal",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cron-jobs/cron-wealth-kernel-token-renewal/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/cron-jobs/cron-wealth-kernel-token-renewal",
+        "main": "apps/cron-jobs/cron-wealth-kernel-token-renewal/src/main.ts",
+        "tsConfig": "apps/cron-jobs/cron-wealth-kernel-token-renewal/tsconfig.app.json",
+        "assets": [
+          "apps/cron-jobs/cron-wealth-kernel-token-renewal/src/assets"
+        ],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/cron-jobs/cron-wealth-kernel-token-renewal/webpack.config.js",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "cron-jobs-cron-wealth-kernel-token-renewal:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "cron-jobs-cron-wealth-kernel-token-renewal:build:development"
+        },
+        "production": {
+          "buildTarget": "cron-jobs-cron-wealth-kernel-token-renewal:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "apps/cron-jobs/cron-wealth-kernel-token-renewal/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/cron-jobs/cron-wealth-kernel-token-renewal/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

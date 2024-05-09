@@ -1,0 +1,9 @@
+{
+  "editor.tabSize": 2,
+  "vitest.enable": true,
+  "editor.formatOnSave": true,
+  // https://github.com/prettier/prettier-vscode/issues/3020
+  "prettier.prettierPath": "./node_modules/prettier",
+  "autoHide.autoHideSideBar": true,
+  "editor.acceptSuggestionOnEnter": "on"
+}

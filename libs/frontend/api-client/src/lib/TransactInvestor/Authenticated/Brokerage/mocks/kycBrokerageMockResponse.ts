@@ -1,0 +1,75 @@
+import type { InvestorBrokerageApiResponseDto } from '../Brokerage';
+import {
+  InvestorBrokerageAccountStatusEnum,
+  InvestorBrokerageAccountTypeEnum,
+  InvestorBrokerageEmploymentStatusEnum,
+  InvestorBrokerageIndustryEnum,
+  InvestorBrokerageSourcesOfWealthEnum,
+} from '../Brokerage.enum';
+
+export const kycBrokerageMockResponse = {
+  accounts: [
+    {
+      productId: 'string',
+      type: InvestorBrokerageAccountTypeEnum.GIA,
+      addedAt: '2023-10-21T08:04:50.358Z',
+      clientReference: 'string',
+      id: 'string',
+      name: 'string',
+      owner: 'string',
+      status: InvestorBrokerageAccountStatusEnum.PENDING,
+    },
+  ],
+  addresses: [
+    {
+      city: 'string',
+      countryCode: 'string',
+      endDate: null,
+      line1: 'string',
+      line2: null,
+      line3: null,
+      postalCode: 'string',
+      region: null,
+      startDate: null,
+      addedAt: '2023-10-21T08:04:50.358Z',
+      clientReference: 'string',
+      id: 'string',
+      partyId: 'string',
+    },
+  ],
+  party: {
+    annualIncome: {
+      amount: 0,
+      currency: 'GBP',
+    },
+    countryOfBirth: null,
+    dateOfBirth: '2023-10-21',
+    dateOfDeath: null,
+    emailAddress: 'user@example.com',
+    employmentStatus: InvestorBrokerageEmploymentStatusEnum.FULL_TIME,
+    forename: 'string',
+    identifiers: [
+      {
+        issuer: 'string',
+        type: 'string',
+        value: 'string',
+        id: 'string',
+      },
+    ],
+    industry: InvestorBrokerageIndustryEnum.AGRICULTURE_FORESTRY_AND_FISHING,
+    middlename: 'string',
+    nationalities: ['string'],
+    previousSurname: null,
+    sourcesOfWealth: [InvestorBrokerageSourcesOfWealthEnum.SALARY],
+    surname: 'string',
+    taxResidencies: ['string'],
+    telephoneNumber: 'string',
+    title: 'string',
+    type: 'string',
+    addedAt: '2023-10-21T08:04:50.358Z',
+    clientReference: 'string',
+    id: 'string',
+    tenantId: 'string',
+    version: 0,
+  },
+} satisfies InvestorBrokerageApiResponseDto;

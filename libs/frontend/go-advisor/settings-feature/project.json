@@ -1,0 +1,44 @@
+{
+  "name": "go-advisor-settings-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/frontend/go-advisor/settings-feature/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/frontend/go-advisor/settings-feature/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/libs/frontend/go-advisor/settings-feature"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/frontend/go-advisor/settings-feature"
+      ],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../../../coverage/libs/frontend/go-advisor/settings-feature"
+      }
+    }
+  }
+}

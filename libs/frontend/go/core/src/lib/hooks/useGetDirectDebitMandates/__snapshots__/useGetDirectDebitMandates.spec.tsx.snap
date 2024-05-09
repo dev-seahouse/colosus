@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useGetDirectDebitMandate > should render successfully 1`] = `
+[
+  {
+    "bankAccountId": "string",
+    "id": "string",
+    "partyId": "string",
+    "reason": "string",
+    "reference": "string",
+    "status": "Active",
+  },
+]
+`;

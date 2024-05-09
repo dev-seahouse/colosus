@@ -1,0 +1,18 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "compilerOptions": {
+    "strict": true,
+    // See https://github.com/nestjs/nest/issues/4178 for why we override strictPropertyInitialization to false
+    "strictPropertyInitialization": false
+  },
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

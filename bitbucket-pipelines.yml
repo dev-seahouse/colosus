@@ -1,0 +1,1058 @@
+image: node:18.17
+
+clone:
+  depth: full
+
+definitions:
+  services:
+    docker:
+      type: docker
+      memory: 2048
+  caches:
+    node: ./node_modules
+  steps:
+    - step: &build-wk-model-sync-cron-for-tag
+        name: Build wealth kernel account sync cron for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          - yarn nx run cron-syncronize-model-portfolio-wk-models:build --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-model-sync:$BITBUCKET_TAG-amd64
+          - docker build -f apps/cron-jobs/cron-syncronize-model-portfolio-wk-models/bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-model-sync:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/cron-jobs/cron-syncronize-model-portfolio-wk-models/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &build-wk-account-sync-cron-for-tag
+        name: Build wealth kernel account sync cron for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          - yarn nx run cron-wealth-kernel-investor-account-sync:build --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-account-sync:$BITBUCKET_TAG-amd64
+          - docker build -f apps/cron-jobs/cron-wealth-kernel-investor-account-sync/bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-account-sync:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/cron-jobs/cron-wealth-kernel-investor-account-sync/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &build-wealth-kernel-connector-cron-new-for-tag
+        name: Build wealth kernel connector cron new for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          - yarn nx run cron-jobs-cron-wealth-kernel-token-renewal:build:production --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-connector-renew:$BITBUCKET_TAG-amd64
+          - docker build -f apps/cron-jobs/cron-wealth-kernel-token-renewal/bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/cron-wk-connector-renew:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/cron-jobs/cron-wealth-kernel-token-renewal/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &build-wealth-kernel-connector-for-tag
+        name: Build wealth kernel connector for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          - yarn nx run-many --target=build --projects=wealth-kernel-connector --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/wealth-kernel-connector:$BITBUCKET_TAG-amd64
+          - docker build -f apps/wealth-kernel-connector/bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/wealth-kernel-connector:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/wealth-kernel-connector/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &build-colossus-docker-image-for-tag
+        name: Build colossus api image for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          - yarn nx run-many --target=build --projects=colossus --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/colossus:$BITBUCKET_TAG-amd64
+          - docker build -f apps/colossus/bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/colossus:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/colossus/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &build-colossus-db-setup-docker-image-for-tag
+        name: Build colossus db setup image for tag
+        size: 2x
+        image: bambudocker/node-alpine-azure-cli:latest
+        services:
+          - docker
+        caches:
+          - node
+        script:
+          # Install deps & build
+          - yarn install --frozen-lockfile
+          # - yarn nx run-many --target=build --projects=colossus --verbose
+          # Build docker image
+          - export DOCKER_BUILDKIT=1
+          - export IMAGE_NAME=$ACR_NAME.azurecr.io/colossus-db-setup:$BITBUCKET_TAG-amd64
+          - docker build -f apps/colossus/bit-bucket.db.setup.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+          # Install Azure CLI
+          # - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          # - apk add --no-cache --update python3 py3-pip
+          # - apk add --no-cache --update --virtual=build gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+          # - pip3 install --no-cache-dir --prefer-binary azure-cli
+          # - apk del build
+          - az --version
+          # Authenticate to Azure & ACR
+          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+          - az acr login --name $ACR_NAME
+          # Push Docker image
+          - docker push $IMAGE_NAME
+          - docker history $IMAGE_NAME
+          # Cleanup Credentials
+          - docker logout
+          - docker logout $ACR_NAME.azurecr.io
+          - cat $HOME/.docker/config.json || true
+# Legacy script, Bit Bucket has issues with this at 2023-11. Left here for reference
+#        script:
+#          # Login To Docker Hub
+#          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+#
+#          # Setup Build Kit & Cache
+#          - export DOCKER_BUILDKIT=1
+#          - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+#          - docker pull $BASE_LAYER_IMAGE_NAME || true
+#          - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+#          - docker push $BASE_LAYER_IMAGE_NAME
+#
+#          # Build Docker image
+#          - export IMAGE_NAME=$ACR_NAME.azurecr.io/colossus-db-setup:$BITBUCKET_TAG-amd64
+#          - docker build -f apps/colossus/db.setup.slim.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+#
+#          # Install Azure CLI
+#          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#
+#          # Authenticate to Azure & ACR
+#          - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+#          - az acr login --name $ACR_NAME
+#
+#          # Push Docker image
+#          - docker push $IMAGE_NAME
+#
+#          # Cleanup Credentials
+#          - docker logout
+#          - docker logout $ACR_NAME.azurecr.io
+#          - cat $HOME/.docker/config.json || true
+    - step: &deploy-advisor-for-tag
+        name: Deploy colossus advisor portal for tag
+        size: 2x
+        script:
+          - |
+            ENV="DEV"
+            if [[ "$BITBUCKET_TAG" == advisor-dev-fe-* ]]; then
+              ENV="DEV"
+            elif [[ "$BITBUCKET_TAG" == advisor-qa-fe-* ]]; then
+              ENV="QA"
+            elif [[ "$BITBUCKET_TAG" == advisor-prod-fe-* ]]; then
+              ENV="PROD"
+            fi
+          - |
+            export PUBLIC_URL=$(printenv "PUBLIC_URL_${ENV}") \
+            VITE_API_BASE_URL=$(printenv "VITE_API_BASE_URL_${ENV}") \
+            VITE_GO_FE_FEATURE_FLAG_API_KEY=$(printenv "VITE_GO_FE_FEATURE_FLAG_API_KEY_${ENV}") \
+            VITE_ADVISOR_TENANT_URL_EXTENSION=$(printenv "VITE_ADVISOR_TENANT_URL_EXTENSION_${ENV}") \
+            VITE_ADVISOR_GTM_ID=$(printenv "VITE_ADVISOR_GTM_ID_${ENV}")
+
+          # Build the app
+          - yarn nx run go-advisor:build:production
+
+          # Install Azure CLI
+          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+          # Authenticate to Azure
+          - az login --service-principal -u $(printenv "AZURE_STATIC_HOSTING_APP_ID_${ENV}") -p $(printenv "AZURE_STATIC_HOSTING_PASSWORD_${ENV}") --tenant $AZURE_TENANT_ID
+
+          # Upload build to Azure Storage
+          - |
+            az storage blob upload-batch \
+            -s dist/apps/go-advisor \
+            -d '$web' \
+            --account-name $(printenv "AZURE_GO_ADVISOR_STORAGE_ACCOUNT_NAME_${ENV}") \
+            --account-key $(printenv "AZURE_GO_ADVISOR_STORAGE_ACCOUNT_KEY_${ENV}") \
+            --overwrite true
+
+          # Purge Azure CDN cache
+          - |
+            az cdn endpoint purge \
+            --resource-group $(printenv "AZURE_RESOURCE_GROUP_${ENV}") \
+            --profile-name $(printenv "AZURE_GO_ADVISOR_CDN_PROFILE_NAME_${ENV}") \
+            --name $(printenv "AZURE_GO_ADVISOR_CDN_ENDPOINT_NAME_${ENV}") \
+            --content-paths "/*"
+
+    - step: &deploy-investor-for-tag
+        name: Deploy colossus investor portal for tag
+        size: 2x
+        script:
+          - |
+            ENV="DEV"
+            if [[ "$BITBUCKET_TAG" == investor-dev-fe-* ]]; then
+              ENV="DEV"
+            elif [[ "$BITBUCKET_TAG" == investor-qa-fe-* ]]; then
+              ENV="QA"
+            elif [[ "$BITBUCKET_TAG" == investor-prod-fe-* ]]; then
+              ENV="PROD"
+            fi
+          - |
+            export PUBLIC_URL=$(printenv "PUBLIC_URL_${ENV}") \
+            VITE_API_BASE_URL=$(printenv "VITE_API_BASE_URL_${ENV}") \
+            VITE_GO_FE_FEATURE_FLAG_API_KEY=$(printenv "VITE_GO_FE_FEATURE_FLAG_API_KEY_${ENV}") \
+            VITE_INVESTOR_OVERRIDE_BUILD_URL=$(printenv "VITE_INVESTOR_OVERRIDE_BUILD_URL_${ENV}") \
+            VITE_INVESTOR_GTM_ID=$(printenv "VITE_INVESTOR_GTM_ID_${ENV}")
+
+          # Build the app
+          - yarn nx run go:build:production
+
+          # Install Azure CLI
+          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+          # Authenticate to Azure
+          - az login --service-principal -u $(printenv "AZURE_STATIC_HOSTING_APP_ID_${ENV}") -p $(printenv "AZURE_STATIC_HOSTING_PASSWORD_${ENV}") --tenant $AZURE_TENANT_ID
+
+          # Upload build to Azure Storage
+          - |
+            az storage blob upload-batch \
+            -s dist/apps/go \
+            -d '$web' \
+            --account-name $(printenv "AZURE_GO_INVESTOR_STORAGE_ACCOUNT_NAME_${ENV}") \
+            --account-key $(printenv "AZURE_GO_INVESTOR_STORAGE_ACCOUNT_KEY_${ENV}") \
+            --overwrite true
+
+          # Purge Azure CDN cache
+          - |
+            az cdn endpoint purge \
+            --resource-group $(printenv "AZURE_RESOURCE_GROUP_${ENV}") \
+            --profile-name $(printenv "AZURE_GO_INVESTOR_CDN_PROFILE_NAME_${ENV}") \
+            --name $(printenv "AZURE_GO_INVESTOR_CDN_ENDPOINT_NAME_${ENV}") \
+            --content-paths "/*"
+
+    - step: &deploy-admin-for-tag
+        name: Deploy colossus admin portal for tag
+        script:
+          - |
+            ENV="DEV"
+            if [[ "$BITBUCKET_TAG" == admin-dev-fe-* ]]; then
+              ENV="DEV"
+            if [[ "$BITBUCKET_TAG" == admin-qa-fe-* ]]; then
+              ENV="QA"
+            elif [[ "$BITBUCKET_TAG" == admin-prod-fe-* ]]; then
+              ENV="PROD"
+            fi
+          - |
+            export VITE_CONNECT_ADVISOR_USE_MOCK=$(printenv "VITE_CONNECT_ADVISOR_USE_MOCK_${ENV}") \
+            VITE_CONNECT_INVESTOR_USE_MOCK=$(printenv "VITE_CONNECT_INVESTOR_USE_MOCK_${ENV}") \
+            VITE_CONNECT_INVESTOR_ORIGIN_OVERRIDE=$(printenv "INVESTOR_ORIGIN_${ENV}") \
+            PUBLIC_URL=$(printenv "PUBLIC_URL_${ENV}") \
+            VITE_API_BASE_URL=$(printenv "VITE_API_BASE_URL_${ENV}") \
+            VITE_GO_FE_FEATURE_FLAG_API_KEY=$(printenv "VITE_GO_FE_FEATURE_FLAG_API_KEY_${ENV}")
+
+          # Build the app
+          - yarn nx run go-advisor:build:production
+
+          # Install Azure CLI
+          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+          # Authenticate to Azure
+          - az login --service-principal -u $(printenv "AZURE_STATIC_HOSTING_APP_ID_${ENV}") -p $(printenv "AZURE_STATIC_HOSTING_PASSWORD_${ENV}") --tenant $AZURE_TENANT_ID
+
+          # Upload build to Azure Storage
+          - |
+            az storage blob upload-batch \
+            -s dist/apps/admin \
+            -d '$web' \
+            --account-name $(printenv "AZURE_GO_ADMIN_STORAGE_ACCOUNT_NAME_${ENV}") \
+            --account-key $(printenv "AZURE_GO_ADMIN_STORAGE_ACCOUNT_KEY_${ENV}") \
+            --overwrite true
+
+          # Purge Azure CDN cache
+          - |
+            az cdn endpoint purge \
+            --resource-group $(printenv "AZURE_RESOURCE_GROUP_${ENV}") \
+            --profile-name $(printenv "AZURE_GO_ADMIN_CDN_PROFILE_NAME_${ENV}") \
+            --name $(printenv "AZURE_GO_ADMIN_CDN_ENDPOINT_NAME_${ENV}") \
+            --content-paths "/*"
+
+    - step: &build-colossus-docker-image-for-commit
+        name: Build docker image for a commit
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+          - export DOCKER_BUILDKIT=1
+          - export CACHE_IMAGE_NAME=bambudocker/colossus:latest
+          - export IMAGE_NAME=bambudocker/colossus:$BITBUCKET_COMMIT
+          - docker build -f apps/colossus/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $CACHE_IMAGE_NAME
+          - docker history $IMAGE_NAME
+          - docker push $IMAGE_NAME
+          - docker logout
+          - cat $HOME/.docker/config.json || true
+    - step: &build-latest-colossus-docker-image
+        name: Build latest colossus image in main
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+          - export DOCKER_BUILDKIT=1
+          - export LATEST_IMAGE_NAME=bambudocker/colossus:latest
+          - export LATEST_COMMIT_IMAGE_NAME=bambudocker/colossus:$BITBUCKET_COMMIT
+          - docker build -f apps/colossus/Dockerfile . -t $LATEST_COMMIT_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $LATEST_IMAGE_NAME
+          - docker history $LATEST_COMMIT_IMAGE_NAME
+          - docker push $LATEST_COMMIT_IMAGE_NAME
+          - docker build -f apps/colossus/Dockerfile . -t $LATEST_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $LATEST_COMMIT_IMAGE_NAME
+          - docker push $LATEST_IMAGE_NAME
+          - docker logout
+          - cat $HOME/.docker/config.json || true
+    - step: &check-node-cache
+        name: check & delete cache if changes in the build dependencies
+        script:
+          - pipe: atlassian/bitbucket-clear-cache:3.5.0
+            variables:
+              BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+              BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+              CACHES: [ "node" ]
+        condition:
+          changesets:
+            includePaths:
+              - package.json
+              - yarn.lock
+    - step: &install-dependencies
+        name: Install Dependencies
+        script:
+          - yarn install --frozen-lockfile
+    - step: &lint-affected
+        name: Lint affected files
+        script:
+          - yarn nx affected --target=lint --exclude=react-test-utils --base=origin/main --verbose
+    - step: &test-affected
+        name: Test affected files
+        size: 2x
+        script:
+          - yarn nx affected --target=test --exclude=react-test-utils --base=origin/main --verbose --parallel --max-parallel=1
+    - step: &build-affected
+        name: Build affected files
+        size: 2x
+        script:
+          - yarn nx affected --target=build --base=origin/main --verbose
+    - step: &audit-dependencies
+        name: Audit Dependencies
+        script:
+          - yarn audit || true
+    - step: &test-all
+        name: Test all packages
+        size: 2x
+        caches:
+          - node
+        script:
+          - yarn prepare:db-schema-generator
+          - yarn nx run-many --target=test --exclude=react-test-utils --parallel=1
+    - step: &sonar-scan-go-advisor-auth-feature
+        name: Sonar scan @bambu/go-advisor-auth-feature
+        caches:
+          - docker
+        services:
+          - docker
+        size: 2x
+        script:
+          - pipe: sonarsource/sonarcloud-scan:1.4.0
+            variables:
+              SONAR_TOKEN: ${GO_ADVISOR_AUTH_FEATURE_SONAR_T0KEN}
+              EXTRA_ARGS: '-Dsonar.projectBaseDir=libs/frontend/go-advisor/auth-feature'
+          - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
+            variables:
+              SONAR_TOKEN: ${GO_ADVISOR_AUTH_FEATURE_SONAR_T0KEN}
+        condition:
+          changesets:
+            includePaths:
+              - 'libs/frontend/go-advisor/auth-feature/**/*'
+    - step: &sonar-scan-go-advisor-profile-creation-feature
+        name: Sonar scan @bambu/go-advisor-profile-creation-feature
+        caches:
+          - docker
+        services:
+          - docker
+        size: 2x
+        script:
+          - pipe: sonarsource/sonarcloud-scan:1.4.0
+            variables:
+              SONAR_TOKEN: ${GO_ADVISOR_PROFILE_CREATION_FEATURE_SONAR_TOKEN}
+              EXTRA_ARGS: '-Dsonar.projectBaseDir=libs/frontend/go-advisor/profile-feature'
+          - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
+            variables:
+              SONAR_TOKEN: ${GO_ADVISOR_PROFILE_CREATION_FEATURE_SONAR_TOKEN}
+        condition:
+          changesets:
+            includePaths:
+              - 'libs/frontend/go-advisor/profile-feature/**/*'
+    - step: &sonar-scan-api-client
+        name: Sonar scan @bambu/api-client
+        caches:
+          - docker
+        services:
+          - docker
+        size: 2x
+        script:
+          - pipe: sonarsource/sonarcloud-scan:1.4.0
+            variables:
+              SONAR_TOKEN: ${API_CLIENT_SONAR_T0KEN}
+              EXTRA_ARGS: '-Dsonar.projectBaseDir=libs/frontend/api-client'
+          - pipe: sonarsource/sonarcloud-quality-gate:0.1.6
+            variables:
+              SONAR_TOKEN: ${API_CLIENT_SONAR_T0KEN}
+        condition:
+          changesets:
+            includePaths:
+              - 'libs/frontend/api-client/**/*'
+    - step: &build-design-system-sb
+        name: Build Design System Storybook
+        script:
+          - yarn nx run react-ui:build-storybook
+        caches:
+          - node
+        artifacts:
+          - dist/storybook/react-ui/**
+    - step: &deploy-design-system-sb-to-aws-s3
+        name: Deploy Design System Storybook to AWS S3
+        script:
+          - pipe: atlassian/aws-s3-deploy:0.3.8
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_REPO_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_REPO_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REPO_DEFAULT_REGION
+              S3_BUCKET: $AWS_SB_DS_S3_BUCKET
+              LOCAL_PATH: 'dist/storybook/react-ui'
+          - pipe: atlassian/aws-cloudfront-invalidate:0.6.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_REPO_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_REPO_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REPO_DEFAULT_REGION
+              DISTRIBUTION_ID: $AWS_SB_DS_CF_DISTRIBUTION_ID
+              PATHS: '/*'
+    - step: &build-advisor-sb
+        name: Build Advisor Storybook
+        size: 2x
+        script:
+          - export NODE_OPTIONS=--max_old_space_size=3072 # increase memory limit
+          - yarn nx run go-advisor:build-storybook
+        artifacts:
+          - dist/storybook/go-advisor/**
+    - step: &publish-advisor-sb-to-chromatic
+        name: Publish Advisor Storybook to Chromatic
+        caches:
+          - node
+        size: 2x
+        script:
+          - |
+            export VITE_GO_FE_FEATURE_FLAG_API_KEY=$(printenv "VITE_GO_FE_FEATURE_FLAG_API_KEY_DEV") \
+            VITE_API_BASE_URL=$(printenv "VITE_API_BASE_URL_LOCAL") \
+          - export NODE_OPTIONS=--max_old_space_size=3072 # increase memory limit
+          - yarn chromatic --project-token=${ADVISOR_CHROMATIC_TOKEN} --zip --exit-zero-on-changes --only-changed --skip main --auto-accept-changes main --build-script-name=build-storybook:go-advisor
+        condition:
+          changesets:
+            includePaths:
+              - 'apps/go-advisor/src/**/*.tsx'
+              - 'libs/frontend/go-advisor/**/*.tsx'
+    - step: &deploy-advisor-sb-to-aws-s3
+        name: Deploy Advisor Storybook to AWS S3
+        script:
+          - pipe: atlassian/aws-s3-deploy:0.3.8
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_REPO_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_REPO_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REPO_DEFAULT_REGION
+              S3_BUCKET: $AWS_SB_ADVISOR_S3_BUCKET
+              LOCAL_PATH: 'dist/storybook/go-advisor'
+          - pipe: atlassian/aws-cloudfront-invalidate:0.6.0
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_REPO_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_REPO_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_REPO_DEFAULT_REGION
+              DISTRIBUTION_ID: $AWS_SB_ADVISOR_CF_DISTRIBUTION_ID
+              PATHS: '/*'
+#    - step: &run-advisor-e2e-tests
+#        name: Run Advisor E2E Tests
+#        image: mcr.microsoft.com/playwright:v1.31.0-focal
+#        script:
+#          - yarn nx run go-advisor-e2e:e2e
+#        condition:
+#          changesets:
+#            includePaths:
+#              - 'apps/go-advisor/src/**/*.tsx'
+#              - 'apps/go-advisor/src/**/*.ts'
+#              - 'apps/go-advisor-e2e/src/**/*.ts'
+#              - 'libs/frontend/go-advisor/**/*.tsx'
+
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step: *build-affected
+      - parallel:
+          steps:
+            - step: *lint-affected
+            - step: *test-affected
+      - step: *publish-advisor-sb-to-chromatic
+  #      - parallel:
+  #          steps:
+  #            - step: *run-advisor-e2e-tests
+
+  branches:
+    main: # if this is too excessive we can opt to do a scheduled pipeline instead for main
+      - step: *check-node-cache
+      - step:
+          <<: *install-dependencies # pass dependencies as cache in main
+          caches:
+            - node
+      - step: *test-all
+      - step: *publish-advisor-sb-to-chromatic
+  #      - parallel:
+  #          steps:
+  #            - step: *sonar-scan-go-advisor-auth-feature
+  #            - step: *sonar-scan-api-client
+  #            - step: *sonar-scan-go-advisor-profile-creation-feature
+  tags:
+    'sb-ds-v*':
+      - step: *build-design-system-sb
+      - step: *deploy-design-system-sb-to-aws-s3
+    'sb-adv-v*':
+      - step:
+          <<: *build-advisor-sb
+          caches:
+            - node
+      - step: *deploy-advisor-sb-to-aws-s3
+    colossus-fusion-auth-transact-migration-*:
+      - step:
+          name: "Run Fusion Auth Transact Migration"
+          services:
+            - docker
+          script:
+            # Login To Docker Hub
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+
+            # Setup Build Kit & Cache
+            - export DOCKER_BUILDKIT=1
+            - export BASE_LAYER_IMAGE_NAME=bambudocker/colossus-base:ci-base
+            - docker pull $BASE_LAYER_IMAGE_NAME || true
+            - docker build -f apps/colossus/Dockerfile . -t $BASE_LAYER_IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $BASE_LAYER_IMAGE_NAME --target base
+            - docker push $BASE_LAYER_IMAGE_NAME
+
+            # Build Docker image
+            - export IMAGE_NAME=$ACR_NAME.azurecr.io/fusion-auth-transact-application-migration:$BITBUCKET_TAG-amd64
+            - docker build -f apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_LAYER_IMAGE_NAME
+
+            # Install Azure CLI
+            - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+            # Authenticate to Azure & ACR
+            - az login --service-principal -u $AZURE_ACR_APP_ID -p $AZURE_ACR_PASSWORD --tenant $AZURE_TENANT_ID
+            - az acr login --name $ACR_NAME
+
+            # Push Docker image
+            - docker push $IMAGE_NAME
+
+            # Cleanup Credentials
+            - docker logout
+            - docker logout $ACR_NAME.azurecr.io
+            - cat $HOME/.docker/config.json || true
+    colossus-dev-api-*:
+      - step: *build-colossus-docker-image-for-tag
+    colossus-dev-db-setup-*:
+      - step: *build-colossus-db-setup-docker-image-for-tag
+    advisor-dev-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-advisor-for-tag
+          deployment: advisor-dev-fe # Test environment type
+    investor-dev-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+         <<: *deploy-investor-for-tag
+         deployment: investor-dev-fe # Test environment type
+    admin-dev-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+         <<: *deploy-admin-for-tag
+         deployment: admin-dev-fe # Test environment type
+    colossus-prod-api-*:
+      - step: *build-colossus-docker-image-for-tag
+    colossus-prod-db-setup-*:
+      - step: *build-colossus-db-setup-docker-image-for-tag
+    advisor-prod-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-advisor-for-tag
+          deployment: advisor-prod-fe # Production environment type
+    investor-prod-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-investor-for-tag
+          deployment: investor-prod-fe # Production environment type
+    admin-prod-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-admin-for-tag
+          deployment: admin-prod-fe # Production environment type
+    colossus-qa-api-*:
+      - step: *build-colossus-docker-image-for-tag
+    colossus-qa-db-setup-*:
+      - step: *build-colossus-db-setup-docker-image-for-tag
+    advisor-qa-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-advisor-for-tag
+          deployment: advisor-qa-fe # Stating environment type
+    investor-qa-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+         <<: *deploy-investor-for-tag
+         deployment: investor-qa-fe #Staging environment type
+    admin-qa-fe-*:
+      - step:
+          <<: *install-dependencies
+          artifacts: # pass node_modules as artifacts in PR pipelines
+            - node_modules/**/*
+      - step:
+          <<: *deploy-admin-for-tag
+          deployment: admin-qa-fe #Staging environment type
+    wealth-kernel-connector-api-*:
+      - step: *build-wealth-kernel-connector-for-tag
+    cron-wk-connector-renew-*:
+      - step: *build-wealth-kernel-connector-cron-new-for-tag
+    cron-wealth-kernel-investor-account-sync-*:
+      - step: *build-wk-account-sync-cron-for-tag
+    cron-wealth-kernel-model-sync-*:
+      - step: *build-wk-model-sync-cron-for-tag
+  custom:
+    audit:
+      - step: *audit-dependencies
+    build-latest-daily:
+      - step: *build-latest-colossus-docker-image
+    build-for-commit:
+      - step: *build-colossus-docker-image-for-commit
+    build-baseline-azure-cli-build-image:
+      - step:
+          name: Build baseline Azure CLI build image
+          services:
+            - docker
+          script:
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+            - export DOCKER_BUILDKIT=1
+            - export IMAGE_NAME=bambudocker/node-alpine-azure-cli:latest
+            - docker build -f bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $IMAGE_NAME
+            - docker history $IMAGE_NAME
+            - docker push $IMAGE_NAME
+            - docker logout
+            - cat $HOME/.docker/config.json || true
+    build-colossus-cron-wk-investor-model-portfolio-sync-docker-image-test:
+      - step:
+          name: Build colossus wealth kernel model portfolio sync CRON docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run cron-syncronize-model-portfolio-wk-models:build --verbose
+            # Build docker image
+            - export DOCKER_BUILDKIT=1
+            - docker build -f apps/cron-jobs/cron-syncronize-model-portfolio-wk-models/bit-bucket.Dockerfile . -t bambugoacr.azurecr.io/cron-wk-model-sync:latest-amd64 --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+    build-colossus-cron-wk-investor-account-sync-docker-image-test:
+      - step:
+          name: Build colossus wealth kernel account sync CRON docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run cron-wealth-kernel-investor-account-sync:build --verbose
+            # Build docker image
+            - export DOCKER_BUILDKIT=1
+            - docker build -f apps/cron-jobs/cron-wealth-kernel-investor-account-sync/bit-bucket.Dockerfile . -t bambugoacr.azurecr.io/cron-wk-account-sync:latest-amd64 --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+    build-colossus-cron-wk-token-renewal-docker-image-test:
+      - step:
+          name: Build colossus wealth kernel token renewal CRON docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+            - docker
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run cron-jobs-cron-wealth-kernel-token-renewal:build:production --verbose
+            # Build docker image
+            - export DOCKER_BUILDKIT=1
+            - docker build -f apps/cron-jobs/cron-wealth-kernel-token-renewal/bit-bucket.Dockerfile . -t bambugoacr.azurecr.io/cron-wk-connector-renew:latest-amd64 --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+    build-colossus-wk-connector-docker-image-test:
+      - step:
+          name: Build colossus wealth kernel connector docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+            - docker
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run-many --target=build --projects=wealth-kernel-connector --verbose
+            # Build docker image
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+            - export DOCKER_BUILDKIT=1
+            - export BASE_IMAGE_NAME=bambudocker/colossus:latest-amd64
+            - docker build -f apps/wealth-kernel-connector/bit-bucket.Dockerfile . -t bambugoacr.azurecr.io/wealth-kernel-connector:latest-amd64 --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain
+            - docker logout
+            - cat $HOME/.docker/config.json || true
+    build-colossus-docker-image-test:
+      - step:
+          name: Build colossus docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+            - docker
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run-many --target=build --projects=colossus --verbose
+            # Build docker image
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+            - export DOCKER_BUILDKIT=1
+            - export BASE_IMAGE_NAME=bambudocker/colossus:latest-amd64
+            - docker build -f apps/colossus/bit-bucket.Dockerfile . -t bambugoacr.azurecr.io/colossus:latest-amd64 --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain  --cache-from $BASE_IMAGE_NAME
+            - docker logout
+            - cat $HOME/.docker/config.json || true
+    build-colossus-db-setup-docker-image-test:
+      - step:
+          name: Build colossus db setup docker image test
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+            - docker
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run-many --target=build --projects=colossus --verbose
+            # Build docker image
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+            - export DOCKER_BUILDKIT=1
+            - export BASE_IMAGE_NAME=bambudocker/colossus:ci-base
+            - docker build -f apps/colossus/bit-bucket.db.setup.Dockerfile . -t bambugoacr.azurecr.io/colossus-db-setup:latest --build-arg BUILDKIT_INLINE_CACHE=1 --progress plain --cache-from $BASE_IMAGE_NAME
+            - docker logout
+            - cat $HOME/.docker/config.json || true
+    build-ci-base-docker-image:
+      - step:
+          name: Build colossus base ci docker image
+          size: 2x
+          image: node:18.17.1-alpine3.18
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            - yarn install --frozen-lockfile
+            - yarn nx run-many --target=build --projects=colossus --verbose
+            # Build docker image
+            - echo "$docker_hub_access_token" | docker login -u $docker_hub_username --password-stdin
+            - export DOCKER_BUILDKIT=1
+            - export IMAGE_NAME=bambudocker/colossus:ci-base
+            - docker build -f ci-base.bit-bucket.Dockerfile . -t $IMAGE_NAME --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $IMAGE_NAME
+            - docker history $IMAGE_NAME
+            - docker push $IMAGE_NAME
+            - docker logout
+            - cat $HOME/.docker/config.json || true

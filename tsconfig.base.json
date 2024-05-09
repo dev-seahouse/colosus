@@ -1,0 +1,130 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "paths": {
+      "@bambu/api-client": ["libs/frontend/api-client/src/index.ts"],
+      "@bambu/go-advisor-analytics": [
+        "libs/frontend/go-advisor/analytics/src/index.ts"
+      ],
+      "@bambu/go-advisor-auth-feature": [
+        "libs/frontend/go-advisor/auth-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-branding-feature": [
+        "libs/frontend/go-advisor/branding-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-clients-feature": [
+        "libs/frontend/go-advisor/clients-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-content-feature": [
+        "libs/frontend/go-advisor/content-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-core": ["libs/frontend/go-advisor/core/src/index.ts"],
+      "@bambu/go-advisor-dashboard-feature": [
+        "libs/frontend/go-advisor/dashboard-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-get-verified-feature": [
+        "libs/frontend/go-advisor/get-verified-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-goals-feature": [
+        "libs/frontend/go-advisor/goals-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-leads-feature": [
+        "libs/frontend/go-advisor/leads-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-portfolios-feature": [
+        "libs/frontend/go-advisor/portfolios-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-profile-feature": [
+        "libs/frontend/go-advisor/profile-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-risk-profile-feature": [
+        "libs/frontend/go-advisor/risk-profile-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-settings-feature": [
+        "libs/frontend/go-advisor/settings-feature/src/index.ts"
+      ],
+      "@bambu/go-advisor-subscription-feature": [
+        "libs/frontend/go-advisor/subscription-feature/src/index.ts"
+      ],
+      "@bambu/go-analytics": ["libs/frontend/go/analytics/src/index.ts"],
+      "@bambu/go-auth-feature": ["libs/frontend/go/auth-feature/src/index.ts"],
+      "@bambu/go-conversion-feature": [
+        "libs/frontend/go/conversion-feature/src/index.ts"
+      ],
+      "@bambu/go-core": ["libs/frontend/go/core/src/index.ts"],
+      "@bambu/go-dashboard-feature": [
+        "libs/frontend/go/dashboard-feature/src/index.ts"
+      ],
+      "@bambu/go-engagement-feature": [
+        "libs/frontend/go/engagement-feature/src/index.ts"
+      ],
+      "@bambu/go-goal-settings-feature": [
+        "libs/frontend/go/goal-settings-feature/src/index.ts"
+      ],
+      "@bambu/go-investing-feature": [
+        "libs/frontend/go/investing-feature/src/index.ts"
+      ],
+      "@bambu/go-manage-goals-feature": [
+        "libs/frontend/go/manage-goals-feature/src/index.ts"
+      ],
+      "@bambu/go-onboarding-feature": [
+        "libs/frontend/go/onboarding-feature/src/index.ts"
+      ],
+      "@bambu/go/dashboard-feature": [
+        "libs/frontend/go/dashboard-feature/src/index.ts"
+      ],
+      "@bambu/react-test-utils": [
+        "libs/frontend/react-test-utils/src/index.ts"
+      ],
+      "@bambu/react-ui": ["libs/frontend/react-ui/src/index.ts"],
+      "@bambu/server-connect/domains": [
+        "libs/@bambu/server-connect/domains/src/index.ts"
+      ],
+      "@bambu/server-core/common-errors": [
+        "libs/@bambu/server-core/common-errors/src/index.ts"
+      ],
+      "@bambu/server-core/common-guards": [
+        "libs/@bambu/server-core/common-guards/src/index.ts"
+      ],
+      "@bambu/server-core/common-rest-endpoints": [
+        "libs/@bambu/server-core/common-rest-endpoints/src/index.ts"
+      ],
+      "@bambu/server-core/configuration": [
+        "libs/@bambu/server-core/configuration/src/index.ts"
+      ],
+      "@bambu/server-core/constants": [
+        "libs/@bambu/server-core/constants/src/index.ts"
+      ],
+      "@bambu/server-core/db/central-db": [
+        "libs/@bambu/server-core/db/central-db/src/index.ts"
+      ],
+      "@bambu/server-core/domains": [
+        "libs/@bambu/server-core/domains/src/index.ts"
+      ],
+      "@bambu/server-core/dto": ["libs/@bambu/server-core/dto/src/index.ts"],
+      "@bambu/server-core/repositories": [
+        "libs/@bambu/server-core/repositories/src/index.ts"
+      ],
+      "@bambu/server-core/utilities": [
+        "libs/@bambu/server-core/utilities/src/index.ts"
+      ],
+      "@bambu/shared": ["libs/shared/src/index.ts"],
+      "@bambu/storybook-utils": ["libs/frontend/storybook-utils/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

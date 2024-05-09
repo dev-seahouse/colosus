@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "leads"
+  ADD COLUMN "status" VARCHAR(255) NOT NULL DEFAULT 'NEW';

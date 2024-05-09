@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TransactInvestorAuthApi > createAccount > should return a valid response 1`] = `
+{
+  "data": "",
+}
+`;
+
+exports[`TransactInvestorAuthApi > login > should return a valid response 1`] = `
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImQ2YmRlNTRmOCJ9.eyJhdWQiOiJhZDI3OTlmMC00NTZjLTQ4YmEtYWFlOS02ZTQ1OWU4YjNjNjQiLCJleHAiOjE2OTc2MjMxNjQsImlhdCI6MTY5NzYyMjg2NCwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiJkOTI3ZmVjZS1hZDUzLTRjOGItOTc2OS1hNDc4Y2M3NWVhNDciLCJqdGkiOiI5NjIwODU0Mi1lNTg5LTQxOWUtOTRlMy1iYjcyZDgxMjllYmEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiaWFuK3Rlc3QwMUBiYW1idS5jbyIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoiaWFuK3Rlc3QwMUBiYW1idS5jbyIsImFwcGxpY2F0aW9uSWQiOiJhZDI3OTlmMC00NTZjLTQ4YmEtYWFlOS02ZTQ1OWU4YjNjNjQiLCJyb2xlcyI6WyJJbnZlc3RvciJdLCJzaWQiOiI5Y2RhODM3Yy02NzZhLTQxOWQtOWM0OC1jMGI0OTQ0MzAxNWMiLCJhdXRoX3RpbWUiOjE2OTc2MjI4NjQsInRpZCI6ImJiNDBmMzEyLTI1ZWMtNGQxYi05ZmU3LTg5YTVmOTZjNzgyYyJ9.PBT6W-uFZQ2E14J5f8V2VHSdJahUNTOBgV8xU0O1x8k",
+  "expires_in": 300,
+  "not-before-policy": 0,
+  "refresh_expires_in": 86400,
+  "refresh_token": "FMtfbW_6fiy1MAg6FnQKOTmOQ3CMQJiZk12-BHi7A1eVUNTLF1McTA",
+  "session_state": "Bearer",
+  "token_type": "Bearer",
+}
+`;

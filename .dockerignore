@@ -1,0 +1,38 @@
+# ignore .git and cache folders
+.git
+.cache
+tmp
+
+# Ignore all documentation items
+*.md
+docs
+assets
+specs
+
+# ignore BitBucket Pipelines file
+bitbucket-pipelines.yml
+
+# ignore node dependency folders
+# allowing it to be included so that the package.json file can be used
+# node_modules
+
+# ignore dev tool files
+.vscode
+.idea
+
+# env files
+.env
+
+# reference files
+__references__.zip
+
+# ignore CLI scripts
+*.sh
+*.ps1
+*.cmd
+*.bat
+
+# local docker compose config files
+docker-compose-keycloak.Dockerfile
+docker-compose-mailcatcher.Dockerfile
+docker-compose.yaml

@@ -1,0 +1,298 @@
+version: '3.8'
+name: colossus-fusion-auth
+services:
+  postgres:
+    image: postgres:15.2-alpine3.17
+    # command: ["postgres", "-c", "log_statement=all"]
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      ACCEPT_EULA: Y
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dbadmin']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - data-layer
+    restart: unless-stopped
+    volumes:
+      - ./docker-compose-db-init.sh:/docker-entrypoint-initdb.d/docker-compose-db-init.sh
+      - db_data:/var/lib/postgresql/data
+  fusionauth-search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    container_name: fusionauth-search
+    environment:
+      cluster.name: fusionauth
+      bootstrap.memory_lock: 'true'
+      xpack.security.enabled: false
+      discovery.type: single-node
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS}
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'curl',
+          '--fail',
+          '--write-out',
+          "'HTTP %{http_code}'",
+          '--silent',
+          '--output',
+          '/dev/null',
+          'http://localhost:9200/',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - data-layer
+    ports:
+      - '9200:9200'
+    restart: unless-stopped
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - fusionauth_search_data:/usr/share/elasticsearch/data
+  fusionauth:
+    image: fusionauth/fusionauth-app:1.47.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      fusionauth-search:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/fusionauth
+      DATABASE_ROOT_USERNAME: ${POSTGRES_USER}
+      DATABASE_ROOT_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      FUSIONAUTH_APP_MEMORY: ${FUSIONAUTH_APP_MEMORY}
+      FUSIONAUTH_APP_RUNTIME_MODE: development
+      FUSIONAUTH_APP_URL: http://fusionauth:9011
+      SEARCH_SERVERS: http://fusionauth-search:9200
+      SEARCH_TYPE: elasticsearch
+    networks:
+      - data-layer
+    restart: unless-stopped
+    ports:
+      - '9011:9011'
+    volumes:
+      - fusionauth_config:/usr/local/fusionauth/config
+  keycloak:
+    # image: babugoacr.azurecr.io/keycloak:latest
+    build:
+      context: .
+      dockerfile: ./docker-compose-keycloak.Dockerfile
+    environment:
+      KC_HOSTNAME: localhost:8080
+      KC_DB: postgres
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_SCHEMA: public
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_POOL_INITIAL_SIZE: 2
+      KC_DB_POOL_MAX_SIZE: 100
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: 'true'
+      KC_HTTP_PORT: 8080
+      KC_HTTPS_PORT: 8181
+      KC_PROXY: edge
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      JAVA_OPTS_APPEND: '-Xms128m -Xmx1024m  -XX:+UseG1GC -XX:+UseCompressedOops -XX:+UseStringDeduplication -server'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data-layer
+    ports:
+      - '8080:8080'
+    command: ['start', '--optimized']
+    profiles:
+      - developWithKeyCloak
+  migrate-to-transact-fusion-auth:
+    build:
+      context: .
+      dockerfile: ./apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+        - COMPOSE_DOCKER_CLI_BUILD=1
+    networks:
+      - data-layer
+    environment:
+      STRIPE_SECRET_KEY: '-'
+      STRIPE_WEBHOOK_ENDPOINT_SECRET: '-'
+      FUSION_AUTH_ADMIN_API_KEY: 'put-your-key-here'
+      FUSION_AUTH_BASE_URL: 'http://fusionauth:9011'
+      RUN_MIGRATION_SCRIPT: '0'
+    profiles:
+      - triggerMigrationOfFaForTransact
+  mailcatcher:
+    # image: yappabe/mailcatcher
+    build:
+      context: .
+      dockerfile: ./docker-compose-mailcatcher.Dockerfile
+    ports:
+      - '1025:1025'
+      - '1080:1080'
+    networks:
+      - data-layer
+    restart: always
+  cron-wk-renew-token:
+    build:
+      context: .
+      dockerfile: ./apps/cron-jobs/cron-wealth-kernel-token-renewal/local.Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+        - COMPOSE_DOCKER_CLI_BUILD=1
+    networks:
+      - data-layer
+    user: root
+    # command: 'crond -f -l 2 -L /dev/stdout'
+    command: 'sh -c "/usr/local/bin/node /app/apps/cron-jobs/cron-wealth-kernel-token-renewal/main.js ; crond -f -l 2 -L /dev/stdout"'
+    depends_on:
+      wealth-kernel-connector:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      STRIPE_SECRET_KEY: '-'
+      STRIPE_WEBHOOK_ENDPOINT_SECRET: '-'
+      WEALTH_KERNEL_CONNECTOR_HOST: ${WEALTH_KERNEL_CONNECTOR_HOST_DOCKER}
+      WEALTH_KERNEL_AUTH_API_BASE_URL: ${WEALTH_KERNEL_AUTH_API_BASE_URL}
+      WEALTH_KERNEL_OPS_API_BASE_URL: ${WEALTH_KERNEL_OPS_API_BASE_URL}
+    #      STUB_WEALTH_KERNEL_CLIENT_ID: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+    #      STUB_WEALTH_KERNEL_CLIENT_SECRET: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+    # noinspection ComposeUnknownKeys
+    develop:
+      watch:
+        - action: 'rebuild'
+          path: ./apps/cron-jobs/cron-wealth-kernel-token-renewal
+        - action: rebuild
+          path: ./libs/@bambu
+        - action: rebuild
+          path: ./libs/shared
+  cron-wealth-kernel-account-sync:
+    build:
+      context: .
+      dockerfile: apps/cron-jobs/cron-wealth-kernel-investor-account-sync/local.Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+        - COMPOSE_DOCKER_CLI_BUILD=1
+    networks:
+      - data-layer
+    user: root
+    command: 'sh -c "/usr/local/bin/node /app/apps/cron-jobs/cron-wealth-kernel-investor-account-sync/main.js ; crond -f -l 2 -L /dev/stdout"'
+    depends_on:
+      wealth-kernel-connector:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      STRIPE_SECRET_KEY: '-'
+      STRIPE_WEBHOOK_ENDPOINT_SECRET: '-'
+      WEALTH_KERNEL_CONNECTOR_HOST: ${WEALTH_KERNEL_CONNECTOR_HOST_DOCKER}
+      WEALTH_KERNEL_AUTH_API_BASE_URL: ${WEALTH_KERNEL_AUTH_API_BASE_URL}
+      WEALTH_KERNEL_OPS_API_BASE_URL: ${WEALTH_KERNEL_OPS_API_BASE_URL}
+      #      STUB_WEALTH_KERNEL_CLIENT_ID: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+      #      STUB_WEALTH_KERNEL_CLIENT_SECRET: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+      CENTRAL_DB_URL: ${CONTAINER_CENTRAL_DB_URL}
+    # noinspection ComposeUnknownKeys
+    develop:
+      watch:
+        - action: 'rebuild'
+          path: ./apps/cron-jobs/cron-wealth-kernel-investor-account-sync
+        - action: rebuild
+          path: ./libs/@bambu
+        - action: rebuild
+          path: ./libs/shared
+  cron-wealth-kernel-model-sync:
+    build:
+      context: .
+      dockerfile: apps/cron-jobs/cron-syncronize-model-portfolio-wk-models/local.Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+        - COMPOSE_DOCKER_CLI_BUILD=1
+    networks:
+      - data-layer
+    user: root
+    command: 'sh -c "/usr/local/bin/node /app/apps/cron-jobs/cron-syncronize-model-portfolio-wk-models/main.js ; crond -f -l 2 -L /dev/stdout"'
+    depends_on:
+      wealth-kernel-connector:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      STRIPE_SECRET_KEY: '-'
+      STRIPE_WEBHOOK_ENDPOINT_SECRET: '-'
+      WEALTH_KERNEL_CONNECTOR_HOST: ${WEALTH_KERNEL_CONNECTOR_HOST_DOCKER}
+      WEALTH_KERNEL_AUTH_API_BASE_URL: ${WEALTH_KERNEL_AUTH_API_BASE_URL}
+      WEALTH_KERNEL_OPS_API_BASE_URL: ${WEALTH_KERNEL_OPS_API_BASE_URL}
+      #      STUB_WEALTH_KERNEL_CLIENT_ID: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+      #      STUB_WEALTH_KERNEL_CLIENT_SECRET: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+      CENTRAL_DB_URL: ${CONTAINER_CENTRAL_DB_URL}
+    # noinspection ComposeUnknownKeys
+    develop:
+      watch:
+        - action: 'rebuild'
+          path: ./apps/cron-jobs/cron-syncronize-model-portfolio-wk-models
+        - action: rebuild
+          path: ./libs/@bambu
+        - action: rebuild
+          path: ./libs/shared
+  wealth-kernel-connector:
+    build:
+      context: .
+      dockerfile: ./apps/wealth-kernel-connector/Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+        - COMPOSE_DOCKER_CLI_BUILD=1
+    networks:
+      - data-layer
+    ports:
+      - '9001:9001'
+    depends_on:
+      - postgres
+      - fusionauth
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '--quiet', 'http://localhost:9001/']
+      interval: 30s
+      timeout: 25s
+      retries: 5
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: 'log,error,warn,debug,verbose'
+      STRIPE_SECRET_KEY: '-'
+      STRIPE_WEBHOOK_ENDPOINT_SECRET: '-'
+      WEALTH_KERNEL_AUTH_API_BASE_URL: ${WEALTH_KERNEL_AUTH_API_BASE_URL}
+      WEALTH_KERNEL_OPS_API_BASE_URL: ${WEALTH_KERNEL_OPS_API_BASE_URL}
+      #      STUB_WEALTH_KERNEL_CLIENT_ID: ${STUB_WEALTH_KERNEL_CLIENT_ID}
+      #      STUB_WEALTH_KERNEL_CLIENT_SECRET: ${STUB_WEALTH_KERNEL_CLIENT_SECRET}
+      CENTRAL_DB_URL: ${CONTAINER_CENTRAL_DB_URL}
+      PGP_PASSPHRASE: ${PGP_PASSPHRASE}
+      PGP_PRIVATE_KEY_BASE64: ${PGP_PRIVATE_KEY_BASE64}
+      PGP_PUBLIC_KEY_BASE64: ${PGP_PUBLIC_KEY_BASE64}
+      PGP_REVOCATION_CERTIFICATE_BASE64: ${PGP_REVOCATION_CERTIFICATE_BASE64}
+    # noinspection ComposeUnknownKeys
+    develop:
+      watch:
+        - action: 'rebuild'
+          path: ./apps/wealth-kernel-connector
+        - action: rebuild
+          path: ./libs/@bambu
+        - action: rebuild
+          path: ./libs/shared
+volumes:
+  db_data:
+    driver: local
+  fusionauth_search_data:
+    driver: local
+  fusionauth_config:
+    driver: local
+networks:
+  data-layer:
+    driver: bridge

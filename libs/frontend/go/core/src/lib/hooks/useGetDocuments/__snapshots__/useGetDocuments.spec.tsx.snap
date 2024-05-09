@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useGetDocuments > should render successfully 1`] = `
+{
+  "privacyPolicyUrl": "some-pdf.pdf",
+  "termsAndConditionsUrl": "some-pdf.pdf",
+}
+`;

@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useProfileDetails > should render successfully 1`] = `
+{
+  "advisorSubscriptionIds": "CONNECT",
+  "businessName": "Gre@t Adv1sor Pte Ltd",
+  "contactMeReasonsRichText": "<p>I am awesome!</p>",
+  "countryOfResidence": "USA",
+  "emailVerified": true,
+  "firstName": "Ashley",
+  "hasActiveSubscription": true,
+  "jobTitle": "Financial Advisor",
+  "lastName": "Smith",
+  "profileBioRichText": "<p>I am a professional money maker</p>",
+  "region": "Detroit",
+  "subdomain": "https://bambu.bambu-go.com",
+  "tenantRealm": "foo_eggs_at_bar_com",
+  "userId": "51007cd5-2a5f-4507-aa67-a2bf6994c023",
+  "username": "foo.eggs@bar.com",
+}
+`;

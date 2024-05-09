@@ -1,0 +1,43 @@
+{
+  "name": "@bambu-server-core-repositories",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/@bambu/server-core/repositories/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
+      "options": {
+        "outputPath": "dist/libs/@bambu/server-core/repositories",
+        "tsConfig": "libs/@bambu/server-core/repositories/tsconfig.lib.json",
+        "packageJson": "libs/@bambu/server-core/repositories/package.json",
+        "main": "libs/@bambu/server-core/repositories/src/index.ts",
+        "assets": ["libs/@bambu/server-core/repositories/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/@bambu/server-core/repositories/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/@bambu/server-core/repositories/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

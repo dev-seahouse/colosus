@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`HouseApi > calculateHouseGoalAmount > should return a valid response 1`] = `
+{
+  "currency": "USD",
+  "downPaymentAmt": 89334348.99,
+  "houseCostInflationAdj": 297781163.32,
+  "yearsToGoal": 6,
+}
+`;

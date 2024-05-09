@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Education > calculateUniversityGoalAmount > should return a valid response 1`] = `
+{
+  "currency": "USD",
+  "educationCost": 155502,
+  "goalYear": 2020,
+  "maxYearsToGoal": 8,
+  "universityCost": 146576,
+  "yearsToGoal": 2,
+}
+`;

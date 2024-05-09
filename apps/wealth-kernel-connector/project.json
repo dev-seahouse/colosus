@@ -1,0 +1,65 @@
+{
+  "name": "wealth-kernel-connector",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/wealth-kernel-connector/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/wealth-kernel-connector",
+        "main": "apps/wealth-kernel-connector/src/main.ts",
+        "tsConfig": "apps/wealth-kernel-connector/tsconfig.app.json",
+        "assets": ["apps/wealth-kernel-connector/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/wealth-kernel-connector/webpack.config.js",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "wealth-kernel-connector:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "wealth-kernel-connector:build:development"
+        },
+        "production": {
+          "buildTarget": "wealth-kernel-connector:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/wealth-kernel-connector/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/wealth-kernel-connector/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

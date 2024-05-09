@@ -1,0 +1,46 @@
+{
+  "name": "go-auth-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/frontend/go/auth-feature/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/frontend/go/auth-feature/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/frontend/go/auth-feature",
+        "tsConfig": "libs/frontend/go/auth-feature/tsconfig.lib.json",
+        "project": "libs/frontend/go/auth-feature/package.json",
+        "entryFile": "libs/frontend/go/auth-feature/src/index.ts",
+        "external": ["react", "react-dom", "@emotion/react/jsx-runtime"],
+        "rollupConfig": "@nx/react/plugins/bundle-rollup",
+        "compiler": "babel",
+        "assets": [
+          {
+            "glob": "libs/frontend/go/auth-feature/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../../../coverage/libs/frontend/go/auth-feature"
+      }
+    }
+  }
+}

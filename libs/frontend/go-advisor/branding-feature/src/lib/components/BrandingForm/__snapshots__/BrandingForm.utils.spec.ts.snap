@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BrandingForm.utils > getBrandingDefaultValues > should return branding default values 1`] = `
+{
+  "brandColor": "#000000",
+  "headerBgColor": "#000000",
+  "logo": null,
+  "tradeName": "Wealth Avenue",
+}
+`;

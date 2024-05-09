@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Go</title>
+    <base href="/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://global.localizecdn.com/localize.js"></script>
+    <script>
+      !(function (a) {
+        if (!a.Localize) {
+          a.Localize = {};
+          for (
+            var e = [
+                'translate',
+                'untranslate',
+                'phrase',
+                'initialize',
+                'translatePage',
+                'setLanguage',
+                'getLanguage',
+                'getSourceLanguage',
+                'detectLanguage',
+                'getAvailableLanguages',
+                'untranslatePage',
+                'bootstrap',
+                'prefetch',
+                'on',
+                'off',
+                'hideWidget',
+                'showWidget',
+              ],
+              t = 0;
+            t < e.length;
+            t++
+          )
+            a.Localize[e[t]] = function () {};
+        }
+      })(window);
+    </script>
+
+    <script>
+      Localize.initialize({
+        key: 'YewYw9H1eKgNe',
+        rememberLanguage: true,
+      });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

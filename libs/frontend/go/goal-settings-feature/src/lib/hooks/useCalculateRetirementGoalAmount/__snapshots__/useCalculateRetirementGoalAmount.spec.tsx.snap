@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useCalculateRetirementGoalAmount > should call onSuccess when operation is successful 1`] = `
+{
+  "goalAmount": 1612818,
+  "retirementAssets": {
+    "totalAssets": 443392.3,
+    "totalPension": 235294.11,
+    "totalRetirementSavings": 12682.42,
+    "totalSocialSecurityBenefits": 195415.77,
+  },
+  "totalRetirementExpenditure": 2056210.3,
+  "workingPeriod": 12,
+  "yearsToDecumulate": 20,
+}
+`;

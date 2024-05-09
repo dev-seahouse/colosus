@@ -1,0 +1,29 @@
+@@@Owners @"Matius Hariman Natasampurna" @"Benjamin Wong"
+package.json @@Owners
+bitbucket-pipelines.yml @@Owners
+
+# core frontend
+@@@Frontend @"Matius Hariman Natasampurna" @"Kenan Xin" @"Ian Foo" @"Akarsh Srivastava"
+apps/go-admin/ @@Frontend
+apps/go-admin-e2e/ @@Frontend
+apps/go-advisor/ @@Frontend
+apps/go-advisor-e2e/ @@Frontend
+apps/go/ @@Frontend
+apps/go-e2e/ @@Frontend
+apps/go-ui-e2e/ @@Frontend
+libs/frontend/ @@Frontend
+
+# core backend
+@@@Backend @"Benjamin Wong" @"Johannes Choo" @"Gunvant Sarpate"
+apps/colossus/ @@Backend
+apps/colossus-e2e/ @@Backend
+libs/@bambu/ @@Backend
+
+# shared items
+libs/shared/ @@Backend @@Frontend
+
+# Only one approval for changes in dependencies.
+Check(@@Owners >= 1)
+
+# Only one approval for changes in FE.
+Check(@@Frontend >= 1)

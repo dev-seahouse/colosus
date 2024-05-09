@@ -1,0 +1,86 @@
+{
+  "name": "migration-scripts-migration-script-colossus-transact-fusion-auth-application",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/src/main.ts",
+        "tsConfig": "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/tsconfig.app.json",
+        "assets": [
+          "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/src/assets"
+        ],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "migration-scripts-migration-script-colossus-transact-fusion-auth-application:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "migration-scripts-migration-script-colossus-transact-fusion-auth-application:build:development"
+        },
+        "production": {
+          "buildTarget": "migration-scripts-migration-script-colossus-transact-fusion-auth-application:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/migration-scripts/migration-script-colossus-transact-fusion-auth-application/Dockerfile . -t migration-scripts-migration-script-colossus-transact-fusion-auth-application"
+    }
+  },
+  "tags": []
+}

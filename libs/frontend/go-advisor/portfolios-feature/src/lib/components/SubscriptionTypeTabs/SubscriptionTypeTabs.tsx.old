@@ -1,0 +1,66 @@
+import { useState } from 'react';
+import { Tab, Tabs, Box, lighten } from '@bambu/react-ui';
+import LockIcon from '@mui/icons-material/Lock';
+import { ConnectAssetAllocationPanel } from '../ConnectAssetAllocationPanel/ConnectAssetAllocationPanel';
+import TransactPortfolioProductsTabPanel from '../TransactAssetAllocationPanel/TransactPortfolioProductsTabPanel';
+import { useSelectIsTransactUser } from '@bambu/go-advisor-core';
+const TABS_NAME = 'subscription-type';
+
+export const SubscriptionTypeTabs = () => {
+  const [value, setValue] = useState(0);
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+  const isTransactUser = useSelectIsTransactUser();
+  return (
+    <>
+      <Box
+        sx={(theme) => ({
+          borderBottomBorder: '1px',
+          borderBottomStyle: 'solid',
+          borderBottomColor: lighten(theme.palette.primary.main, 0.9),
+        })}
+      >
+        <Tabs
+          id={`${TABS_NAME}-tabs`}
+          data-testid={`${TABS_NAME}-tabs`}
+          variant="fullWidth"
+          value={value}
+          onChange={handleChange}
+          aria-label={TABS_NAME}
+        >
+          <Tab
+            sx={{ fontWeight: 'bold' }}
+            label={'Connect'}
+            {...a11yProps(0)}
+          />
+          <Tab
+            sx={{ fontWeight: 'bold' }}
+            icon={isTransactUser ? '' : <LockIcon />}
+            iconPosition="end"
+            label={'Transact'}
+            {...a11yProps(1)}
+          />
+        </Tabs>
+      </Box>
+      <ConnectAssetAllocationPanel
+        tabsName={TABS_NAME}
+        index={0}
+        value={value}
+      />
+      <TransactPortfolioProductsTabPanel
+        tabsName={TABS_NAME}
+        index={1}
+        value={value}
+      />
+    </>
+  );
+};
+function a11yProps(index: number) {
+  return {
+    id: `${TABS_NAME}-tab-${index}`,
+    'aria-controls': `${TABS_NAME}-tabpanel-${index}`,
+  };
+}
+
+export default SubscriptionTypeTabs;

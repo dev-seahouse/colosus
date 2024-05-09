@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useGetBranding > should render successfully 1`] = `
+{
+  "brandColor": "#00876A",
+  "headerBgColor": "#fff",
+  "logoUrl": null,
+  "tradeName": "Wealth Avenue",
+}
+`;

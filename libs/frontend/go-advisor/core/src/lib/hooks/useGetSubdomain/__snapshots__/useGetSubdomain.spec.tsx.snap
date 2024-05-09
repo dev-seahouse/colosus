@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useGetTenantBranding > should render successfully 1`] = `
+{
+  "subdomain": "",
+  "tradeName": "",
+}
+`;

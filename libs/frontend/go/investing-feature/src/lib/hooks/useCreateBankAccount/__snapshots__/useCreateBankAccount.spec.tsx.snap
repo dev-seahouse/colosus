@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useCreateBankAccount > should render successfully 1`] = `
+{
+  "accountNumber": "55779911",
+  "addedAt": "2021-01-01T00:00:00.000Z",
+  "clientReference": "1944a59713",
+  "countryCode": "GB",
+  "currency": "GBP",
+  "deactivatedAt": "2021-01-01T00:00:00.000Z",
+  "id": "bnk-33wdqmffe22aq6",
+  "name": "C Kent & L Lane",
+  "partyId": "pty-33wds6i4i242wc",
+  "sortCode": "20-00-00",
+}
+`;

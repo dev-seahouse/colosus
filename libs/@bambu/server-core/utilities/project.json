@@ -1,0 +1,48 @@
+{
+  "name": "@bambu-server-core-utilities",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/@bambu/server-core/utilities/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/@bambu/server-core/utilities",
+        "tsConfig": "libs/@bambu/server-core/utilities/tsconfig.lib.json",
+        "packageJson": "libs/@bambu/server-core/utilities/package.json",
+        "main": "libs/@bambu/server-core/utilities/src/index.ts",
+        "assets": ["libs/@bambu/server-core/utilities/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/@bambu/server-core/utilities/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/@bambu/server-core/utilities/jest.config.ts",
+        "passWithNoTests": true,
+        "coverageDirectory": "coverage/libs/@bambu/server-core/utilities"
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        },
+        "watch": {
+          "onlyChanged": true,
+          "watch": true,
+          "coverage": false
+        }
+      }
+    }
+  },
+  "tags": []
+}

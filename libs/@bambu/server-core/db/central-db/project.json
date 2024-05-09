@@ -1,0 +1,83 @@
+{
+  "name": "@bambu-server-core-db-central-db",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/@bambu/server-core/db/central-db/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build", "prisma-generate-client"],
+      "options": {
+        "outputPath": "dist/libs/@bambu/server-core/db/central-db",
+        "tsConfig": "libs/@bambu/server-core/db/central-db/tsconfig.lib.json",
+        "packageJson": "libs/@bambu/server-core/db/central-db/package.json",
+        "main": "libs/@bambu/server-core/db/central-db/src/index.ts",
+        "assets": ["libs/@bambu/server-core/db/central-db/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/@bambu/server-core/db/central-db/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/@bambu/server-core/db/central-db/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "prisma-generate-client": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn prisma generate --schema libs/@bambu/server-core/db/central-db/src/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma-migrate-create-only": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn prisma migrate dev --schema libs/@bambu/server-core/db/central-db/src/prisma/schema.prisma --create-only --name update"
+        ]
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn prisma migrate dev --name update --schema libs/@bambu/server-core/db/central-db/src/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn prisma migrate deploy --schema libs/@bambu/server-core/db/central-db/src/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma-seed-central-db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node libs/@bambu/server-core/db/central-db/seeding/init.js"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

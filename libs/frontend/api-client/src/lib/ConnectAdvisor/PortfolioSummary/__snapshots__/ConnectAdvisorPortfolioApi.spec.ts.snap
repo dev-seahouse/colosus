@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ConnectAdvisorPortfolioSummaryApi > getPortfolios() > should return a valid response 1`] = `
+{
+  "portfolioSummaries": [
+    {
+      "assetClassAllocation": [
+        {
+          "assetClass": "Equity",
+          "included": true,
+          "percentOfPortfolio": "3.5",
+        },
+      ],
+      "description": "This portfolio primarily looks to preserve capital through a conservative asset allocation.",
+      "expectedReturnPercent": "4",
+      "expectedVolatilityPercent": "3.5",
+      "key": "CONSERVATIVE",
+      "name": "Conservative Portfolio",
+      "reviewed": true,
+      "riskProfileId": "b6739bd8-6267-4bf7-bb1f-e112c54bec71",
+      "showSummaryStatistics": true,
+    },
+  ],
+}
+`;

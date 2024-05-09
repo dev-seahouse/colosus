@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TopLevelOptions > getTopLevelOptions() > should return a valid response 1`] = `
+{
+  "contactLink": "https://www.bambu.life",
+  "incomeThreshold": 100000,
+  "retireeSavingsThreshold": 100000,
+}
+`;

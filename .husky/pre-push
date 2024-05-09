@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+. "$(dirname -- "$0")/common.sh"
+
+[ -n "$CI" ] && exit 0
+
+yarn nx affected --target=build --verbose
+yarn nx affected --target=lint --exclude=react-test-utils --verbose
+yarn nx affected --target=test --exclude=react-test-utils --verbose

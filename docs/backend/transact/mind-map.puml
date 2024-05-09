@@ -1,0 +1,187 @@
+@startmindmap
+* Transact
+** Advisor
+** Investor
+*** User Creation
+*** Account Creation
+**** Account Type
+***** Individual
+***** Joint
+***** Retirement
+****** USA
+******* IRA Traditional
+******* IRA ROTH
+****** Canada
+******* RRSP
+****** UK
+******* ISA
+******* SIPP
+****** Australia
+******* Superannuation
+******* SMSF
+****** Malaysia
+******* EPF i-Invest
+******* (Insert Bumiputera Schemes here)
+***** Tax Free Investments?
+****** Canada?
+******* TFSA?
+******* RESP?
+*** Investor Verification
+**** KYC/AML Data Submission
+***** Basic User Info
+***** Basic User Info
+***** Address Info
+***** Personal Info
+***** Identification Info
+***** Employment Info
+***** Investor Profile Info
+***** Disclosures
+***** Supporting Documents
+****** Document Upload
+******* APEX Sketch API
+******* Drive Wealth API
+****** E-Sign
+******* E-Sign Genie
+******* DocuSign
+******* Adobe Sign
+**** Customer Due Diligence
+***** Approve Customer
+***** Reject Customer
+***** Request Additional Information
+***** Further Review
+*** Money Movement
+**** Deposit/Withdrawal
+***** ACH
+****** Clawback
+****** Deposit
+****** Withdrawal
+***** Wire
+****** Deposit
+****** Withdrawal
+***** ACATS
+****** As Cash
+****** As Positions
+****** As Cash and Positions
+***** Cheque?
+**** RSP
+***** ACH
+****** Clawback
+****** Deposit
+****** Withdrawal
+***** Wire
+****** Deposit
+****** Withdrawal
+*** Holdings
+**** Model Portfolio
+**** Goal Positions
+**** Portfolio Position Re-balancing
+**** Holdings mismatch monitoring tool
+**** Cash Holdings
+***** Bank Sweep Account
+***** Money Market Sweep Account
+*** Trading
+**** Cash Earmarking/Balance Check
+**** Basket Trading
+***** Notional Trading
+****** ETF
+******* APEX
+******* Drive Wealth
+***** Unit Trading
+****** ETF
+******* APEX
+******* Drive Wealth
+**** Single Security Trading
+***** Notional Trading
+****** Mutual Funds
+******* SAXO
+***** Unit Trading
+****** Mutual Funds
+******* SAXO
+**** Corporate Actions Monitoring
+***** Dividends
+***** Interest
+***** Splits
+***** Reverse-splits
+***** Stamp Duties
+***** Security Lending Interest
+***** Taxes
+**** Fees Monitoring
+***** Brokerage/Custodian Management Fees
+***** Advisor Platform Fees
+**** Ledger Reconciliation
+***** Mapping trades to goal holdings
+***** Mapping splits to goal holdings
+***** Mapping reverse splits to goal holdings
+***** Mapping dividends to goal holdings
+***** Mapping interest to goal holdings
+***** Mapping fees to goal holdings
+***** Earmarking cash proceeds for re-balancing
+**** Instrument Price Feeds
+***** Brokerage
+****** Files
+******* APEX (SOD Flat files)
+******* SAXO (EOD Flat files)
+****** REST API
+******* Drive Wealth
+******* SAXO
+***** 3rd Party
+****** Refinitiv/Thomson Reuters
+****** IEX Cloud
+*** System Notifications
+**** Web Socket Alerts
+***** SAXO
+**** Queue Alerts
+***** SQS
+****** Drive Wealth
+**** API Long Polling
+***** APEX
+**** CRON Jobs
+***** Files
+****** APEX (SOD Flat files)
+****** SAXO (EOD Flat files)
+****** Drive Wealth (SOD JSON file)
+***** API Calls
+****** SOAP
+******* SAXO
+****** REST
+******* APEX
+******* Drive Wealth
+******* SAXO
+*** Reporting
+**** Reporting Functions
+***** Holdings Mismatch Reporting
+****** Handle Deposit Withdraw/Deposit Scenarios
+***** Daily Trade Execution (Or lack thereof) Reporting
+***** Portfolio Drift Reporting
+***** PNL Reporting
+****** Handle negative holdings?
+***** Fees Reporting
+****** Brokerage/Custodian Fees
+****** Transaction Fees
+******* SEC Fees
+******* TAF Fees
+****** Advisor Platform Fees
+***** Corporate Actions Reporting
+****** Dividends
+****** Interest
+****** Splits
+****** Reverse-splits
+****** Stamp Duties
+****** Security Lending Interest
+****** Taxes
+***** User Reporting
+****** Goal/Portfolio
+****** Usage
+****** AUM Reporting
+***** Investment Universe Reporting
+****** Instrument Usage Reporting
+****** Portfolio Usage Reporting
+**** CSV Extracts
+***** Compliance Reporting (SEC)
+***** Position Delta Reporting (Platform vs Custodian)
+***** User Reporting
+**** BI Reporting
+***** Instrument Reporting Star Schema
+***** Position Delta Reporting (Platform vs Custodian) Star Schema
+***** User Reporting Star Schema
+@endmindmap

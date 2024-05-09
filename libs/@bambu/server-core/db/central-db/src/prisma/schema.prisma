@@ -1,0 +1,681 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../../../../../../node_modules/@bambu/colossus/prisma/central-db"
+  previewFeatures = ["extendedWhereUnique"]
+  binaryTargets   = ["native"]
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("CENTRAL_DB_URL")
+  shadowDatabaseUrl = env("SHADOW_CENTRAL_DB_URL")
+}
+
+model Tenant {
+  id                         String                       @id @default(uuid()) @db.VarChar(36)
+  realm                      String                       @unique @db.VarChar(255)
+  createdBy                  String                       @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                  DateTime                     @default(now()) @map("created_at")
+  updatedBy                  String                       @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                  DateTime                     @default(now()) @map("updated_at")
+  linkedToKeyCloak           Boolean                      @default(false) @map("linked_to_keycloak")
+  usesIdInsteadOfRealm       Boolean                      @default(false) @map("uses_id_instead_of_realm")
+  linkedToFusionAuth         Boolean                      @default(false) @map("linked_to_fusion_auth")
+  connectAdvisors            ConnectAdvisor[]
+  ConnectPortfolioSummary    ConnectPortfolioSummary[]
+  ConnectTenantGoalTypes     ConnectTenantGoalType[]
+  otps                       Otp[]
+  apiKeys                    TenantApiKey[]
+  branding                   TenantBranding?
+  httpUrls                   TenantHttpUrl[]
+  tenantSubscriptions        TenantSubscription[]
+  users                      User[]
+  legalDocuments             LegalDocumentSet[]
+  ConnectTenant              ConnectTenant?
+  Leads                      Leads[]
+  ConnectAdvisorLeadSettings ConnectAdvisorPreferences[]
+  RiskProfile                RiskProfile[]
+  Questionnaire              Questionnaire[]
+  Investors                  Investors[]
+  TenantTransactBrokerages   TenantTransactBrokerages[]
+  TransactAdvisorBankAccount TransactAdvisorBankAccount[]
+
+  @@map("tenants")
+}
+
+model TenantTransactBrokerages {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  brokerage String   @db.VarChar(255)
+  country   String   @db.VarChar(255)
+  region    String?  @db.VarChar(255)
+  status    String?  @db.VarChar(255)
+  tenantId  String   @map("tenant_id") @db.VarChar(36)
+  createdBy String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedBy String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@unique([brokerage, tenantId])
+  @@map("tenant_transact_brokerages")
+}
+
+model TenantSubscription {
+  id                             String   @id @db.VarChar(255)
+  tenantId                       String?  @map("tenant_id") @db.VarChar(36)
+  createdBy                      String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                      DateTime @default(now()) @map("created_at")
+  updatedBy                      String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                      DateTime @default(now()) @map("updated_at")
+  subscriptionProviderName       String   @map("subscription_provider_name")
+  subscriptionProviderCustomerId String   @map("subscription_provider_customer_id")
+  subscriptionProviderProductId  String?  @map("subscription_provider_product_id")
+  subscriptionMetadata           Json?    @map("subscription_metadata")
+  status                         String?  @map("status")
+  bambuGoProductId               String   @map("bambu_go_product_id")
+  providerSubscriptionId         String?  @map("provider_subscription_id")
+  isInterestedInTransact         Boolean  @default(false) @map("is_interested_in_transact")
+  Tenant                         Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@map("tenant_subscriptions")
+}
+
+model TenantApiKey {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  keyType   String   @map("key_type") @db.VarChar(255)
+  keyConfig Json     @map("key_config")
+  createdBy String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedBy String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  tenantId  String?  @map("tenant_id") @db.VarChar(36)
+  Tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@unique([keyType, tenantId])
+  @@map("tenant_api_keys")
+}
+
+model TenantHttpUrl {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  url       String   @unique @db.VarChar(255)
+  type      String   @db.VarChar(255)
+  createdBy String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedBy String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  tenantId  String?  @map("tenant_id") @db.VarChar(36)
+  Tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+
+  @@map("tenant_http_urls")
+}
+
+model User {
+  id                         String                      @id @db.VarChar(36)
+  tenantId                   String?                     @map("tenant_id") @db.VarChar(36)
+  createdBy                  String                      @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                  DateTime                    @default(now()) @map("created_at")
+  updatedBy                  String                      @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                  DateTime                    @updatedAt @map("updated_at")
+  connectAdvisor             ConnectAdvisor?
+  otps                       Otp[]
+  Tenant                     Tenant?                     @relation(fields: [tenantId], references: [id])
+  ConnectAdvisorLeadSettings ConnectAdvisorPreferences[]
+
+  @@map("user")
+}
+
+model ConnectAdvisor {
+  userId                           String   @id @db.VarChar(36)
+  tenantId                         String   @map("tenant_id") @db.VarChar(36)
+  firstName                        String   @map("first_name") @db.VarChar(255)
+  lastName                         String   @map("last_name") @db.VarChar(255)
+  jobTitle                         String   @map("job_title") @db.VarChar(255)
+  countryOfResidence               String   @map("country_of_residence") @db.Char(3)
+  region                           String?  @db.VarChar(255)
+  businessName                     String   @map("business_name") @db.VarChar(255)
+  profileBio                       String   @map("profile_bio") @db.Text
+  contactMeReasons                 String   @map("contact_me_reasons") @db.Text
+  contactLink                      String?  @map("contact_link")
+  fullProfileLink                  String?  @map("full_profile_link") @db.VarChar(255)
+  advisorProfilePictureUrl         String?  @map("advisor_profile_picture_url") @db.VarChar(255)
+  advisorInternalProfilePictureUrl String?  @map("advisor_internal_profile_picture_url") @db.VarChar(255)
+  createdBy                        String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                        DateTime @default(now()) @map("created_at")
+  updatedBy                        String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                        DateTime @updatedAt @map("updated_at")
+  Tenant                           Tenant   @relation(fields: [tenantId], references: [id])
+  User                             User     @relation(fields: [userId], references: [id])
+
+  @@map("connect_advisor")
+}
+
+model ConnectAdvisorPreferences {
+  id                                String   @id @default(uuid()) @db.VarChar(36)
+  tenantId                          String   @map("tenant_id") @db.VarChar(36)
+  userId                            String   @map("user_id") @db.VarChar(36)
+  minimumAnnualIncomeThreshold      Float?   @map("minimum_annual_income_threshold")
+  minimumRetirementSavingsThreshold Float?   @map("minimum_retirement_savings_threshold")
+  createdBy                         String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                         DateTime @default(now()) @map("created_at")
+  updatedBy                         String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                         DateTime @updatedAt @map("updated_at")
+  Tenant                            Tenant?  @relation(fields: [tenantId], references: [id])
+  User                              User?    @relation(fields: [userId], references: [id])
+
+  @@unique([tenantId, userId])
+  @@map("connect_advisor_preferences")
+}
+
+model Otp {
+  id                     String                 @id @default(uuid()) @db.VarChar(36)
+  tenantId               String?                @map("tenant_id") @db.VarChar(36)
+  userId                 String?                @map("user_id") @db.VarChar(36)
+  investorPlatformUserId String?                @map("investor_platform_user_id") @db.VarChar(36)
+  otp                    String                 @db.VarChar(255)
+  purpose                String                 @db.VarChar(255)
+  mode                   OtpMode
+  otpState               OtpState               @default(UNUSED) @map("otp_state")
+  expiresAt              DateTime               @map("expires_at")
+  createdBy              String                 @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedBy              String                 @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt              DateTime               @updatedAt @map("updated_at")
+  Tenant                 Tenant?                @relation(fields: [tenantId], references: [id])
+  User                   User?                  @relation(fields: [userId], references: [id])
+  InvestorPlatformUser   InvestorPlatformUsers? @relation(fields: [investorPlatformUserId], references: [id])
+
+  @@index([userId], name: "idx_otp_user_id")
+  @@index([investorPlatformUserId], name: "idx_otp_investor_platform_user_id")
+  // Added check constraint, see libs/@bambu/server-core/db/central-db/src/prisma/migrations/20231016143112_integrating_investor_user_data
+  @@map("otp")
+}
+
+model TenantBranding {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  branding  Json
+  tenantId  String   @unique @map("tenant_id") @db.VarChar(36)
+  createdBy String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedBy String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("tenant_branding")
+}
+
+model ConnectPortfolioSummary {
+  id                        String                    @id @default(uuid()) @db.VarChar(36)
+  tenantId                  String                    @db.VarChar(36)
+  key                       String                    @db.VarChar(255)
+  name                      String                    @db.VarChar(255)
+  description               String                    @db.VarChar(1023)
+  sortKey                   Int                       @map("sort_key")
+  expectedReturnPercent     Decimal                   @map("expected_return_percent") @db.Decimal(10, 7)
+  expectedVolatilityPercent Decimal                   @map("expected_volatility_percent") @db.Decimal(10, 7)
+  showSummaryStatistics     Boolean                   @map("show_summary_statistics")
+  reviewed                  Boolean
+  assetClassAllocation      Json                      @map("asset_class_allocation")
+  createdBy                 String                    @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                 DateTime                  @default(now()) @map("created_at")
+  updatedBy                 String                    @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                 DateTime                  @updatedAt @map("updated_at")
+  Tenant                    Tenant                    @relation(fields: [tenantId], references: [id])
+  risk_profile_id           String                    @map("risk_profile_id") @db.VarChar(36)
+  Leads                     Leads[]
+  RiskProfile               RiskProfile               @relation(fields: [risk_profile_id], references: [id])
+  Goals                     Goals[]
+  TransactModelPortfolios   TransactModelPortfolios[]
+
+  @@unique([tenantId, key])
+  @@unique([tenantId, sortKey])
+  @@map("connect_portfolio_summary")
+}
+
+model TransactModelPortfolios {
+  id                                String                              @id @db.VarChar(36)
+  name                              String?                             @db.VarChar(255)
+  description                       String?
+  expectedAnnualReturn              Decimal?                            @map("expected_annual_return") @db.Decimal(10, 8)
+  expectedAnnualVolatility          Decimal?                            @map("expected_annual_volatility") @db.Decimal(10, 8)
+  rebalancingThreshold              Decimal?                            @map("rebalancing_threshold") @db.Decimal(10, 8)
+  factSheetUrl                      String?                             @map("fact_sheet_url")
+  partnerModelId                    String?                             @map("partner_model_id")
+  connectPortfolioSummaryId         String                              @map("connect_portfolio_summary_id") @db.VarChar(36)
+  createdBy                         String                              @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                         DateTime                            @default(now()) @map("created_at")
+  updatedBy                         String                              @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                         DateTime                            @updatedAt @map("updated_at")
+  ConnectPortfolioSummary           ConnectPortfolioSummary             @relation(fields: [connectPortfolioSummaryId], references: [id])
+  TransactModelPortfolioInstruments TransactModelPortfolioInstruments[]
+
+  @@map("transact_model_portfolios")
+}
+
+model TransactModelPortfolioInstruments {
+  id                       String                  @id @default(uuid()) @db.VarChar(36)
+  weightage                Decimal                 @db.Decimal(10, 8)
+  instrumentId             String                  @map("instrument_id") @db.VarChar(36)
+  transactModelPortfolioId String                  @map("transact_model_portfolio_id") @db.VarChar(36)
+  createdBy                String                  @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                DateTime                @default(now()) @map("created_at")
+  updatedBy                String                  @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                DateTime                @updatedAt @map("updated_at")
+  Instrument               Instruments             @relation(fields: [instrumentId], references: [id])
+  TransactModelPortfolio   TransactModelPortfolios @relation(fields: [transactModelPortfolioId], references: [id])
+
+  @@unique([instrumentId, transactModelPortfolioId])
+  @@map("transact_model_portfolio_instruments")
+}
+
+model GoalType {
+  id                     String                  @id @default(uuid()) @db.VarChar(36)
+  name                   String                  @unique @db.VarChar(255)
+  description            String                  @db.VarChar(2047)
+  sortKey                Int                     @unique @map("sort_key")
+  createdBy              String                  @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedBy              String                  @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  ConnectTenantGoalTypes ConnectTenantGoalType[]
+
+  @@map("goal_type")
+}
+
+model ConnectTenantGoalType {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  tenantId   String   @map("tenant_id") @db.VarChar(36)
+  goalTypeId String   @map("goal_type_id") @db.VarChar(36)
+  sortKey    Int      @map("sort_key")
+  createdBy  String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedBy  String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  GoalType   GoalType @relation(fields: [goalTypeId], references: [id])
+  Tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, goalTypeId])
+  @@unique([tenantId, sortKey])
+  @@map("connect_tenant_goal_type")
+}
+
+model LegalDocumentSet {
+  id           String   @id @default(uuid()) @db.VarChar(36)
+  tenantId     String   @map("tenant_id") @db.VarChar(36)
+  documentUrls Json
+  createdBy    String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedBy    String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  Tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, createdAt])
+  @@map("legal_document_set")
+}
+
+model ConnectTenant {
+  id                      String   @id @default(uuid()) @db.VarChar(36)
+  tenantId                String   @unique @map("tenant_id") @db.VarChar(36)
+  incomeThreshold         Int      @map("income_threshold")
+  retireeSavingsThreshold Int      @map("retiree_savings_threshold")
+  // deprecated - Start
+  contactLink             String?  @map("contact_link")
+  // deprecated - End
+  setupState              Json?    @map("setup_state")
+  createdBy               String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedBy               String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  Tenant                  Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("connect_tenant")
+}
+
+model Leads {
+  id                      String   @id @default(uuid()) @db.VarChar(36)
+  tenantId                String   @map("tenant_id") @db.VarChar(36)
+  name                    String   @db.VarChar(255)
+  email                   String   @db.VarChar(255)
+  phoneNumber             String   @map("phone_number") @db.VarChar(255)
+  zipCode                 String?  @map("zip_code") @db.VarChar(255)
+  age                     Int
+  incomePerAnnum          Int?     @map("income_per_annum")
+  currentSavings          Int?     @map("current_savings")
+  isRetired               Boolean  @map("is_retired")
+  goalDescription         String   @map("goal_description") @db.VarChar(255)
+  goalName                String   @map("goal_name") @db.VarChar(255)
+  goalValue               Float    @map("goal_value")
+  goalTimeframe           Float    @map("goal_timeframe")
+  riskAppetite            String   @map("risk_appetite") @db.VarChar(255)
+  computedRiskProfile     Json?    @map("computed_risk_profile") @db.JsonB()
+  // Earmarked for removal - Start
+  notes                   String   @db.VarChar(1023)
+  // Earmarked for removal - End
+  initialInvestment       Decimal  @map("initial_investment")
+  monthlyContribution     Decimal  @map("monthly_contribution")
+  monthlySavings          Decimal? @map("monthly_savings")
+  projectedReturns        Json     @map("projected_returns")
+  sendAppointmentEmail    Boolean  @default(false) @map("send_appointment_email")
+  sendGoalProjectionEmail Boolean  @default(false) @map("send_goal_projection_email")
+  status                  String   @default("NEW") @db.VarChar(255)
+  createdBy               String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedBy               String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  ConnectPortfolioSummary ConnectPortfolioSummary @relation(fields: [riskAppetite], references: [id])
+  Tenant                  Tenant                  @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, email])
+  @@map("leads")
+}
+
+model RiskProfile {
+  id                      String                    @id @default(uuid()) @db.VarChar(36)
+  lowerLimit              Decimal                   @map("lower_limit") @db.Decimal(10, 8)
+  upperLimit              Decimal                   @map("upper_limit") @db.Decimal(10, 8)
+  riskProfileName         String                    @map("risk_profile_name") @db.VarChar(36)
+  riskProfileDescription  String                    @map("risk_profile_description") @db.VarChar(255)
+  tenantId                String                    @map("tenant_id") @db.VarChar(36)
+  createdBy               String                    @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt               DateTime                  @default(now()) @map("created_at")
+  updatedBy               String                    @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt               DateTime                  @updatedAt @map("updated_at")
+  Tenant                  Tenant                    @relation(fields: [tenantId], references: [id])
+  ConnectPortfolioSummary ConnectPortfolioSummary[]
+
+  @@map("risk_profiles")
+}
+
+model Questionnaire {
+  id                       String                  @id @default(uuid()) @db.VarChar(36)
+  questionnaireType        String                  @map("questionnaire_type") @db.VarChar(36)
+  questionnaireName        String                  @map("questionnaire_name") @db.VarChar(36)
+  questionnaireDescription String                  @map("questionnaire_description") @db.VarChar(255)
+  activeVersion            Int                     @map("active_version") @db.Integer()
+  tenantId                 String                  @map("tenant_id") @db.VarChar(36)
+  createdBy                String                  @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                DateTime                @default(now()) @map("created_at")
+  updatedBy                String                  @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                DateTime                @updatedAt @map("updated_at")
+  Tenant                   Tenant                  @relation(fields: [tenantId], references: [id])
+  QuestionnaireVersions    QuestionnaireVersions[]
+
+  @@map("questionnaires")
+}
+
+model QuestionnaireVersions {
+  id                     String                   @id @default(uuid()) @db.VarChar(36)
+  versionNumber          Int                      @map("version_number") @db.Integer()
+  versionDescription     String                   @map("version_description") @db.VarChar(255)
+  versionNotes           String                   @map("version_notes") @db.VarChar(255)
+  createdBy              String                   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt              DateTime                 @default(now()) @map("created_at")
+  updatedBy              String                   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt              DateTime                 @updatedAt @map("updated_at")
+  questionnaireId        String                   @map("questionnaire_id") @db.VarChar(36)
+  Questionnaire          Questionnaire            @relation(fields: [questionnaireId], references: [id])
+  QuestionnaireGroupings QuestionnaireGroupings[]
+
+  @@map("questionnaire_versions")
+}
+
+model QuestionnaireGroupings {
+  id                      String                   @id @default(uuid()) @db.VarChar(36)
+  groupingType            String                   @map("grouping_type") @db.VarChar(36)
+  groupingName            String                   @map("grouping_name") @db.VarChar(36)
+  groupingWeight          Decimal                  @map("grouping_weight") @db.Decimal(10, 8)
+  scoringRules            String                   @map("scoring_rules") @db.VarChar(36)
+  sortKey                 Int                      @map("sort_key")
+  additionalConfiguration Json                     @map("additional_configuration")
+  createdBy               String                   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt               DateTime                 @default(now()) @map("created_at")
+  updatedBy               String                   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
+  questionnaireVersionId  String                   @map("questionnaire_version_id") @db.VarChar(36)
+  QuestionnaireVersions   QuestionnaireVersions    @relation(fields: [questionnaireVersionId], references: [id])
+  QuestionnaireQuestions  QuestionnaireQuestions[]
+
+  @@map("questionnaire_groupings")
+}
+
+model QuestionnaireQuestions {
+  id                                    String                 @id @default(uuid()) @db.VarChar(36)
+  question                              String                 @map("question") @db.VarChar(255)
+  questionType                          String                 @map("question_type") @db.VarChar(36)
+  questionFormat                        String                 @map("question_format") @db.VarChar(36)
+  questionWeight                        Decimal                @map("question_weight") @db.Decimal(10, 8)
+  sortKey                               Int                    @map("sort_key")
+  additionalConfiguration               Json                   @map("additional_configuration")
+  createdBy                             String                 @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                             DateTime               @default(now()) @map("created_at")
+  updatedBy                             String                 @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                             DateTime               @updatedAt @map("updated_at")
+  questionnaireQuestionnaireGroupingsId String                 @map("questionnaire_question_groupings_id") @db.VarChar(36)
+  QuestionnaireGroupings                QuestionnaireGroupings @relation(fields: [questionnaireQuestionnaireGroupingsId], references: [id])
+  QuestionnaireAnswers                  QuestionnaireAnswers[]
+
+  @@map("questionnaire_questions")
+}
+
+model QuestionnaireAnswers {
+  id                      String                 @id @default(uuid()) @db.VarChar(36)
+  answer                  String                 @map("answer") @db.VarChar(255)
+  score                   Decimal                @map("score") @db.Decimal(10, 8)
+  sortKey                 Int                    @map("sort_key")
+  additionalConfiguration Json                   @map("additional_configuration")
+  createdBy               String                 @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt               DateTime               @default(now()) @map("created_at")
+  updatedBy               String                 @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt               DateTime               @updatedAt @map("updated_at")
+  riskProfileQuestionId   String                 @map("risk_profile_question_id") @db.VarChar(36)
+  QuestionnaireQuestions  QuestionnaireQuestions @relation(fields: [riskProfileQuestionId], references: [id])
+
+  @@map("questionnaire_answers")
+}
+
+model Investors {
+  id                    String                  @id @default(uuid()) @db.VarChar(36)
+  name                  String                  @db.VarChar(255)
+  email                 String                  @db.VarChar(255)
+  phoneNumber           String                  @map("phone_number") @db.VarChar(255)
+  zipCode               String?                 @map("zip_code") @db.VarChar(255)
+  age                   Int
+  incomePerAnnum        Int?                    @map("income_per_annum")
+  currentSavings        Int?                    @map("current_savings")
+  monthlySavings        Decimal?                @map("monthly_savings")
+  isRetired             Boolean                 @map("is_retired")
+  isEmployed            Boolean                 @map("is_employed")
+  type                  String                  @default("LEAD") @db.VarChar(255)
+  leadReviewStatus      String                  @default("NEW") @map("lead_review_status") @db.VarChar(255)
+  data                  Json?                   @map("data") @db.JsonB()
+  tenantId              String                  @map("tenant_id") @db.VarChar(36)
+  createdBy             String                  @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedBy             String                  @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+  Tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  Goals                 Goals[]
+  InvestorPlatformUsers InvestorPlatformUsers[]
+
+  @@unique([email, tenantId])
+  @@map("investors")
+}
+
+model InvestorPlatformUsers {
+  id                           String                         @id @default(uuid()) @db.VarChar(36)
+  applicationId                String                         @map("application_id")
+  data                         Json?                          @map("data") @db.JsonB()
+  createdBy                    String                         @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                    DateTime                       @default(now()) @map("created_at")
+  updatedBy                    String                         @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                    DateTime                       @updatedAt @map("updated_at")
+  investorId                   String                         @map("investor_id") @db.VarChar(36)
+  Investor                     Investors                      @relation(fields: [investorId], references: [id])
+  Otp                          Otp[]
+  InvestorPlatformUserAccounts InvestorPlatformUserAccounts[]
+
+  @@map("investor_platform_users")
+}
+
+model InvestorPlatformUserAccounts {
+  id                     String                @id @default(uuid()) @db.VarChar(36)
+  brokerage              String                @db.VarChar(255)
+  partnerAccountId       String                @map("partner_account_id") @db.VarChar(255)
+  partnerAccountNumber   String                @map("partner_account_number") @db.VarChar(255)
+  partnerAccountType     String                @map("partner_account_type") @db.VarChar(255)
+  data                   Json?                 @map("data") @db.JsonB()
+  investorPlatformUserId String                @map("investor_platform_user_id") @db.VarChar(36)
+  createdBy              String                @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt              DateTime              @default(now()) @map("created_at")
+  updatedBy              String                @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt              DateTime              @updatedAt @map("updated_at")
+  partnerAccountStatus   String?               @map("partner_account_status") @db.VarChar(255)
+  InvestorPlatformUser   InvestorPlatformUsers @relation(fields: [investorPlatformUserId], references: [id])
+
+  @@unique([brokerage, partnerAccountId, partnerAccountNumber, partnerAccountType])
+  @@map("investor_platform_user_accounts")
+}
+
+model Goals {
+  id                             String                      @id @default(uuid()) @db.VarChar(36)
+  goalName                       String                      @map("goal_name") @db.VarChar(255)
+  goalDescription                String                      @map("goal_description") @db.VarChar(255)
+  goalValue                      Decimal                     @map("goal_value")
+  goalTimeframe                  Float                       @map("goal_timeframe")
+  initialInvestment              Decimal                     @map("initial_investment")
+  goalStartDate                  DateTime?                   @map("goal_start_date")
+  goalEndDate                    DateTime?                   @map("goal_end_date")
+  status                         String                      @default("PENDING") @db.VarChar(255)
+  computedRiskProfile            Json?                       @map("computed_risk_profile") @db.JsonB()
+  sendLeadAppointmentEmail       Boolean                     @default(false) @map("send_lead_appointment_email")
+  sendLeadGoalProjectionEmail    Boolean                     @default(false) @map("send_lead_goal_projection_email")
+  investorId                     String                      @map("investor_id") @db.VarChar(36)
+  connectPortfolioSummaryId      String                      @map("connect_portfolio_summary_id") @db.VarChar(36)
+  recommendedMonthlyContribution Decimal                     @default(0) @map("recommended_monthly_contribution")
+  data                           Json?                       @map("data") @db.JsonB()
+  createdBy                      String                      @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt                      DateTime                    @default(now()) @map("created_at")
+  updatedBy                      String                      @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt                      DateTime                    @updatedAt @map("updated_at")
+  Investor                       Investors                   @relation(fields: [investorId], references: [id])
+  ConnectPortfolioSummary        ConnectPortfolioSummary     @relation(fields: [connectPortfolioSummaryId], references: [id])
+  GoalRecurringSavingsPlans      GoalRecurringSavingsPlans[]
+
+  @@map("goals")
+}
+
+model GoalRecurringSavingsPlans {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  amount    Decimal  @map("amount")
+  currency  String   @map("currency") @db.VarChar(255)
+  frequency String   @default("MONTHLY") @map("frequency") @db.VarChar(255)
+  status    String   @default("PENDING") @db.VarChar(255)
+  data      Json?    @map("data") @db.JsonB()
+  goalId    String   @map("goal_id") @db.VarChar(36)
+  createdBy String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedBy String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Goal      Goals    @relation(fields: [goalId], references: [id])
+
+  @@map("goal_recurring_savings_plans")
+}
+
+model InstrumentAssetClasses {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  name        String        @unique @db.VarChar(255)
+  createdBy   String        @default("QUARK") @map("created_by") @db.VarChar(255)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedBy   String        @default("QUARK") @map("updated_by") @db.VarChar(255)
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  Instruments Instruments[]
+
+  @@map("instrument_asset_classes")
+}
+
+model InstrumentExchanges {
+  id                String        @id @default(uuid()) @db.VarChar(36)
+  bambuExchangeCode String        @unique @map("bambu_exchange_code") @db.VarChar(255)
+  createdBy         String        @default("QUARK") @map("created_by") @db.VarChar(255)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedBy         String        @default("QUARK") @map("updated_by") @db.VarChar(255)
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  Instruments       Instruments[]
+
+  @@map("instrument_exchanges")
+}
+
+model InstrumentCurrencies {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  iso4217Code String        @unique @map("iso_4217_code") @db.VarChar(255)
+  createdBy   String        @default("QUARK") @map("created_by") @db.VarChar(255)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedBy   String        @default("QUARK") @map("updated_by") @db.VarChar(255)
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  Instruments Instruments[]
+
+  @@map("instrument_currencies")
+}
+
+model Instruments {
+  id                           String                              @id
+  bloombergTicker              String?                             @map("bloomberg_ticker") @db.VarChar(255)
+  ricSymbol                    String?                             @map("ric_symbol") @db.VarChar(255)
+  isin                         String?                             @map("isin") @db.VarChar(255)
+  cusip                        String?                             @map("cusip") @db.VarChar(255)
+  name                         String
+  instrumentAssetClassId       String                              @map("instrument_asset_class_id") @db.VarChar(36)
+  instrumentExchangeId         String                              @map("instrument_exchange_id") @db.VarChar(36)
+  instrumentCurrencyId         String                              @map("instrument_currency_id") @db.VarChar(36)
+  createdBy                    String                              @default("QUARK") @map("created_by") @db.VarChar(255)
+  createdAt                    DateTime                            @default(now()) @map("created_at")
+  updatedBy                    String                              @default("QUARK") @map("updated_by") @db.VarChar(255)
+  updatedAt                    DateTime                            @updatedAt @map("updated_at")
+  InstrumentFactSheets         InstrumentFactSheets[]
+  InstrumentAssetClass         InstrumentAssetClasses              @relation(fields: [instrumentAssetClassId], references: [id])
+  InstrumentExchange           InstrumentExchanges                 @relation(fields: [instrumentExchangeId], references: [id])
+  InstrumentCurrency           InstrumentCurrencies                @relation(fields: [instrumentCurrencyId], references: [id])
+  TransactPortfolioInstruments TransactModelPortfolioInstruments[]
+
+  @@map("instruments")
+}
+
+model InstrumentFactSheets {
+  id           String      @id @default(uuid()) @db.VarChar(36)
+  url          String
+  instrumentId String      @map("instrument_id") @db.VarChar(36)
+  createdBy    String      @default("QUARK") @map("created_by") @db.VarChar(255)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedBy    String      @default("QUARK") @map("updated_by") @db.VarChar(255)
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  Instrument   Instruments @relation(fields: [instrumentId], references: [id])
+
+  @@unique([url, instrumentId])
+  @@map("instrument_fact_sheets")
+}
+
+model TransactAdvisorBankAccount {
+  id                  String   @id @default(uuid()) @db.VarChar(36)
+  tenantId            String   @unique @map("tenant_id") @db.VarChar(36)
+  accountNumber       String   @map("account_number")
+  sortCode            String   @map("sort_code")
+  accountName         String   @map("account_name")
+  annualManagementFee String   @map("annual_management_fee")
+  createdBy           String   @default("unknown") @map("created_by") @db.VarChar(255)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedBy           String   @default("unknown") @map("updated_by") @db.VarChar(255)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+  Tenant              Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("transact_advisor_bank_accounts")
+}
+
+enum OtpMode {
+  EMAIL
+}
+
+enum OtpState {
+  UNUSED
+  INVALIDATED
+  USED
+}

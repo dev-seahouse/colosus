@@ -1,0 +1,27 @@
+{
+  "extends": ["../../../../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/no-namespace": 0,
+        "@typescript-eslint/no-inferrable-types": "warn"
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/no-namespace": 0,
+        "@typescript-eslint/no-inferrable-types": "warn"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {
+        "@typescript-eslint/no-namespace": 0,
+        "@typescript-eslint/no-inferrable-types": "warn"
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "name": "colossus",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/colossus/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/colossus",
+        "main": "apps/colossus/src/main.ts",
+        "tsConfig": "apps/colossus/tsconfig.app.json",
+        "assets": ["apps/colossus/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/colossus/webpack.config.js",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
+      }
+    },
+    "export-swagger-script": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/docs/open-api/colossus",
+        "main": "apps/colossus/src/export-to-openapi.main.ts",
+        "tsConfig": "apps/colossus/tsconfig.app.json",
+        "assets": ["apps/colossus/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/colossus/webpack.config.js"
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "colossus:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "colossus:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/colossus/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/colossus/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "export-swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn nx run colossus:export-swagger-script && node dist/docs/open-api/colossus/main.js"
+        ]
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/colossus/Dockerfile . -t colossus"
+    }
+  },
+  "tags": []
+}

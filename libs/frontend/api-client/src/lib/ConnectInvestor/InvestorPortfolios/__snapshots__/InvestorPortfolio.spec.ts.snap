@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`InvestorPortfolio > getModelPortfoliosSummary > should return correct response 1`] = `
+{
+  "description": "This portfolio primarily looks to preserve capital through a conservative asset allocation.",
+  "expectedReturnPercent": "4",
+  "expectedVolatilityPercent": "3.5",
+  "factSheetLink": "https://google.com",
+  "id": "ff2693ce-7773-4bdf-913d-5f042b9c5893",
+  "key": "CONSERVATIVE",
+  "name": "Conservative Portfolio",
+  "products": [
+    {
+      "assetClass": "MF",
+      "assetCurrentValue": 7200,
+      "assetUnits": 4.5,
+      "name": "AGF globalsustainable Growth Fund",
+      "ticker": "IWDA",
+    },
+    {
+      "assetClass": "MF",
+      "assetCurrentValue": 7200,
+      "assetUnits": 4.5,
+      "name": "Quantified Alternative Investment",
+      "ticker": "VOO",
+    },
+    {
+      "assetClass": "MF",
+      "assetCurrentValue": 7200,
+      "assetUnits": 4.5,
+      "name": "Quantified Managed Income",
+      "ticker": "IWDA",
+    },
+    {
+      "assetClass": "MF",
+      "assetCurrentValue": 103,
+      "assetUnits": 0.21,
+      "name": "Tradeweb for US Government Securitiesreate Bond ETF - USD",
+      "ticker": "SPX",
+    },
+    {
+      "assetClass": "Cash",
+      "assetCurrentValue": 100,
+      "name": "US Dollar Holdings in Portfolio",
+    },
+  ],
+  "riskProfileId": "b6739bd8-6267-4bf7-bb1f-e112c54bec71",
+}
+`;
